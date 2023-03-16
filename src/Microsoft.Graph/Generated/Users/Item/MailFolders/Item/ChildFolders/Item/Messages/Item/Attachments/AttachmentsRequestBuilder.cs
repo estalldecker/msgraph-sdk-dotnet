@@ -64,8 +64,8 @@ namespace Microsoft.Graph.Users.Item.MailFolders.Item.ChildFolders.Item.Messages
             RequestAdapter = requestAdapter;
         }
         /// <summary>
-        /// Retrieve a list of attachment objects attached to a message.
-        /// Find more info here <see href="https://docs.microsoft.com/graph/api/message-list-attachments?view=graph-rest-1.0" />
+        /// Retrieve a list of attachment objects.
+        /// Find more info here <see href="https://docs.microsoft.com/graph/api/eventmessage-list-attachments?view=graph-rest-1.0" />
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
@@ -84,8 +84,8 @@ namespace Microsoft.Graph.Users.Item.MailFolders.Item.ChildFolders.Item.Messages
             return await RequestAdapter.SendAsync<AttachmentCollectionResponse>(requestInfo, AttachmentCollectionResponse.CreateFromDiscriminatorValue, errorMapping, cancellationToken);
         }
         /// <summary>
-        /// Use this API to add an attachment to a message.  An attachment can be one of the following types: All these types of attachment resources are derived from the attachmentresource.  You can add an attachment to an existing message by posting to its attachments collection, or you can add an attachment to a message that is being created and sent on the fly. This operation limits the size of the attachment you can add to under 3 MB.
-        /// Find more info here <see href="https://docs.microsoft.com/graph/api/message-post-attachments?view=graph-rest-1.0" />
+        /// Use this API to create a new Attachment. An attachment can be one of the following types: All these types of attachment resources are derived from the attachmentresource. 
+        /// Find more info here <see href="https://docs.microsoft.com/graph/api/eventmessage-post-attachments?view=graph-rest-1.0" />
         /// </summary>
         /// <param name="body">The request body</param>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
@@ -106,7 +106,7 @@ namespace Microsoft.Graph.Users.Item.MailFolders.Item.ChildFolders.Item.Messages
             return await RequestAdapter.SendAsync<Attachment>(requestInfo, Attachment.CreateFromDiscriminatorValue, errorMapping, cancellationToken);
         }
         /// <summary>
-        /// Retrieve a list of attachment objects attached to a message.
+        /// Retrieve a list of attachment objects.
         /// </summary>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
@@ -132,7 +132,7 @@ namespace Microsoft.Graph.Users.Item.MailFolders.Item.ChildFolders.Item.Messages
             return requestInfo;
         }
         /// <summary>
-        /// Use this API to add an attachment to a message.  An attachment can be one of the following types: All these types of attachment resources are derived from the attachmentresource.  You can add an attachment to an existing message by posting to its attachments collection, or you can add an attachment to a message that is being created and sent on the fly. This operation limits the size of the attachment you can add to under 3 MB.
+        /// Use this API to create a new Attachment. An attachment can be one of the following types: All these types of attachment resources are derived from the attachmentresource. 
         /// </summary>
         /// <param name="body">The request body</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
@@ -160,7 +160,7 @@ namespace Microsoft.Graph.Users.Item.MailFolders.Item.ChildFolders.Item.Messages
             return requestInfo;
         }
         /// <summary>
-        /// Retrieve a list of attachment objects attached to a message.
+        /// Retrieve a list of attachment objects.
         /// </summary>
         public class AttachmentsRequestBuilderGetQueryParameters {
             /// <summary>Include count of items</summary>
