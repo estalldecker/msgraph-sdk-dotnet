@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class CountryNamedLocation : NamedLocation, IParsable {
+    public class CountryNamedLocation : NamedLocation, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>List of countries and/or regions in two-letter format specified by ISO 3166-2. Required.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -28,6 +36,13 @@ namespace Microsoft.Graph.Models {
         public bool? IncludeUnknownCountriesAndRegions {
             get { return BackingStore?.Get<bool?>("includeUnknownCountriesAndRegions"); }
             set { BackingStore?.Set("includeUnknownCountriesAndRegions", value); }
+        }
+        /// <summary>
+        /// Instantiates a new CountryNamedLocation and sets the default values.
+        /// </summary>
+        public CountryNamedLocation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -57,6 +72,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfPrimitiveValues<string>("countriesAndRegions", CountriesAndRegions);
             writer.WriteEnumValue<CountryLookupMethodType>("countryLookupMethod", CountryLookupMethod);
             writer.WriteBoolValue("includeUnknownCountriesAndRegions", IncludeUnknownCountriesAndRegions);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

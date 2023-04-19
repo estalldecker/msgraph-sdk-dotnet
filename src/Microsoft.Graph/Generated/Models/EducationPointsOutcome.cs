@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class EducationPointsOutcome : EducationOutcome, IParsable {
+    public class EducationPointsOutcome : EducationOutcome, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The numeric grade the teacher has given the student for this assignment.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -37,6 +45,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new EducationPointsOutcome and sets the default values.
         /// </summary>
         public EducationPointsOutcome() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.educationPointsOutcome";
         }
         /// <summary>
@@ -65,6 +75,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteObjectValue<EducationAssignmentPointsGrade>("points", Points);
             writer.WriteObjectValue<EducationAssignmentPointsGrade>("publishedPoints", PublishedPoints);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

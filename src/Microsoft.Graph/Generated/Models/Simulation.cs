@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Simulation : Entity, IParsable {
+    public class Simulation : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The social engineering technique used in the attack simulation and training campaign. Supports $filter and $orderby. Possible values are: unknown, credentialHarvesting, attachmentMalware, driveByUrl, linkInAttachment, linkToMalwareFile, unknownFutureValue. For more information on the types of social engineering attack techniques, see simulations.</summary>
         public SimulationAttackTechnique? AttackTechnique {
             get { return BackingStore?.Get<SimulationAttackTechnique?>("attackTechnique"); }
@@ -29,6 +35,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("automationId", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Date and time of completion of the attack simulation and training campaign. Supports $filter and $orderby.</summary>
         public DateTimeOffset? CompletionDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("completionDateTime"); }
@@ -135,6 +143,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("status", value); }
         }
         /// <summary>
+        /// Instantiates a new simulation and sets the default values.
+        /// </summary>
+        public Simulation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -186,6 +201,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<PayloadDeliveryPlatform>("payloadDeliveryPlatform", PayloadDeliveryPlatform);
             writer.WriteObjectValue<SimulationReport>("report", Report);
             writer.WriteEnumValue<SimulationStatus>("status", Status);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

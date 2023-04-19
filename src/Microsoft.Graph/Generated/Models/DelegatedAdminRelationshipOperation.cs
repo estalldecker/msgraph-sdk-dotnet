@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class DelegatedAdminRelationshipOperation : Entity, IParsable {
+    public class DelegatedAdminRelationshipOperation : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The time in ISO 8601 format and in UTC time when the long-running operation was created. Read-only.</summary>
         public DateTimeOffset? CreatedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("createdDateTime"); }
@@ -40,6 +48,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("status", value); }
         }
         /// <summary>
+        /// Instantiates a new delegatedAdminRelationshipOperation and sets the default values.
+        /// </summary>
+        public DelegatedAdminRelationshipOperation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -71,6 +86,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteDateTimeOffsetValue("lastModifiedDateTime", LastModifiedDateTime);
             writer.WriteEnumValue<DelegatedAdminRelationshipOperationType>("operationType", OperationType);
             writer.WriteEnumValue<LongRunningOperationStatus>("status", Status);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

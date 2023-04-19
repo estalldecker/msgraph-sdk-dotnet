@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class TargetedManagedAppProtection : ManagedAppProtection, IParsable {
+    public class TargetedManagedAppProtection : ManagedAppProtection, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Navigation property to list of inclusion and exclusion groups to which the policy is deployed.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("assignments", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates if the policy is deployed to any inclusion groups or not.</summary>
         public bool? IsAssigned {
             get { return BackingStore?.Get<bool?>("isAssigned"); }
@@ -28,6 +36,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new TargetedManagedAppProtection and sets the default values.
         /// </summary>
         public TargetedManagedAppProtection() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.targetedManagedAppProtection";
         }
         /// <summary>
@@ -61,6 +71,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteCollectionOfObjectValues<TargetedManagedAppPolicyAssignment>("assignments", Assignments);
             writer.WriteBoolValue("isAssigned", IsAssigned);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.Security {
-    public class ProcessEvidence : AlertEvidence, IParsable {
+    public class ProcessEvidence : AlertEvidence, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The status of the detection.The possible values are: detected, blocked, prevented, unknownFutureValue.</summary>
         public Microsoft.Graph.Models.Security.DetectionStatus? DetectionStatus {
             get { return BackingStore?.Get<Microsoft.Graph.Models.Security.DetectionStatus?>("detectionStatus"); }
@@ -101,6 +109,13 @@ namespace Microsoft.Graph.Models.Security {
         }
 #endif
         /// <summary>
+        /// Instantiates a new ProcessEvidence and sets the default values.
+        /// </summary>
+        public ProcessEvidence() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -142,6 +157,7 @@ namespace Microsoft.Graph.Models.Security {
             writer.WriteDateTimeOffsetValue("processCreationDateTime", ProcessCreationDateTime);
             writer.WriteLongValue("processId", ProcessId);
             writer.WriteObjectValue<Microsoft.Graph.Models.Security.UserAccount>("userAccount", UserAccount);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

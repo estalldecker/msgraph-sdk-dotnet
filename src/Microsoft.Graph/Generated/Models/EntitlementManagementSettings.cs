@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class EntitlementManagementSettings : Entity, IParsable {
+    public class EntitlementManagementSettings : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>If externalUserLifecycleAction is blockSignInAndDelete, the duration, typically a number of days, after an external user is blocked from sign in before their account is deleted.</summary>
         public TimeSpan? DurationUntilExternalUserDeletedAfterBlocked {
             get { return BackingStore?.Get<TimeSpan?>("durationUntilExternalUserDeletedAfterBlocked"); }
@@ -14,6 +22,13 @@ namespace Microsoft.Graph.Models {
         public AccessPackageExternalUserLifecycleAction? ExternalUserLifecycleAction {
             get { return BackingStore?.Get<AccessPackageExternalUserLifecycleAction?>("externalUserLifecycleAction"); }
             set { BackingStore?.Set("externalUserLifecycleAction", value); }
+        }
+        /// <summary>
+        /// Instantiates a new entitlementManagementSettings and sets the default values.
+        /// </summary>
+        public EntitlementManagementSettings() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -41,6 +56,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteTimeSpanValue("durationUntilExternalUserDeletedAfterBlocked", DurationUntilExternalUserDeletedAfterBlocked);
             writer.WriteEnumValue<AccessPackageExternalUserLifecycleAction>("externalUserLifecycleAction", ExternalUserLifecycleAction);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

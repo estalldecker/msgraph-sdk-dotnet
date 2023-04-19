@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,14 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// Contains the properties used to assign an MDM app configuration to a group.
     /// </summary>
-    public class ManagedDeviceMobileAppConfigurationAssignment : Entity, IParsable {
+    public class ManagedDeviceMobileAppConfigurationAssignment : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Assignment target that the T&amp;C policy is assigned to.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -22,6 +30,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("target", value); }
         }
 #endif
+        /// <summary>
+        /// Instantiates a new managedDeviceMobileAppConfigurationAssignment and sets the default values.
+        /// </summary>
+        public ManagedDeviceMobileAppConfigurationAssignment() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -46,6 +61,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteObjectValue<DeviceAndAppManagementAssignmentTarget>("target", Target);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

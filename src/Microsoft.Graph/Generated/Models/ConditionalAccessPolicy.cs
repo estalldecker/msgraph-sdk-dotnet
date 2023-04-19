@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ConditionalAccessPolicy : Entity, IParsable {
+    public class ConditionalAccessPolicy : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The conditions property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -91,6 +99,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("state", value); }
         }
         /// <summary>
+        /// Instantiates a new conditionalAccessPolicy and sets the default values.
+        /// </summary>
+        public ConditionalAccessPolicy() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -128,6 +143,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteDateTimeOffsetValue("modifiedDateTime", ModifiedDateTime);
             writer.WriteObjectValue<ConditionalAccessSessionControls>("sessionControls", SessionControls);
             writer.WriteEnumValue<ConditionalAccessPolicyState>("state", State);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

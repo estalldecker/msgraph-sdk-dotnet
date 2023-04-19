@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class EducationAssignmentResource : Entity, IParsable {
+    public class EducationAssignmentResource : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether this resource should be copied to each student submission for modification and submission. Required</summary>
         public bool? DistributeForStudentWork {
             get { return BackingStore?.Get<bool?>("distributeForStudentWork"); }
@@ -24,6 +32,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("resource", value); }
         }
 #endif
+        /// <summary>
+        /// Instantiates a new educationAssignmentResource and sets the default values.
+        /// </summary>
+        public EducationAssignmentResource() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -50,6 +65,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteBoolValue("distributeForStudentWork", DistributeForStudentWork);
             writer.WriteObjectValue<EducationResource>("resource", Resource);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

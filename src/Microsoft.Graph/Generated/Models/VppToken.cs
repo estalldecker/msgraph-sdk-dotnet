@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,12 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// You purchase multiple licenses for iOS apps through the Apple Volume Purchase Program for Business or Education. This involves setting up an Apple VPP account from the Apple website and uploading the Apple VPP Business or Education token to Intune. You can then synchronize your volume purchase information with Intune and track your volume-purchased app use. You can upload multiple Apple VPP Business or Education tokens.
     /// </summary>
-    public class VppToken : Entity, IParsable {
+    public class VppToken : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The apple Id associated with the given Apple Volume Purchase Program Token.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -27,6 +33,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("automaticallyUpdateApps"); }
             set { BackingStore?.Set("automaticallyUpdateApps", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Whether or not apps for the VPP token will be automatically updated.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -100,6 +108,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("vppTokenAccountType", value); }
         }
         /// <summary>
+        /// Instantiates a new vppToken and sets the default values.
+        /// </summary>
+        public VppToken() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -143,6 +158,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<VppTokenState>("state", State);
             writer.WriteStringValue("token", Token);
             writer.WriteEnumValue<VppTokenAccountType>("vppTokenAccountType", VppTokenAccountType);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ResourceSpecificPermissionGrant : DirectoryObject, IParsable {
+    public class ResourceSpecificPermissionGrant : DirectoryObject, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>ID of the service principal of the Azure AD app that has been granted access. Read-only.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -79,6 +87,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new resourceSpecificPermissionGrant and sets the default values.
         /// </summary>
         public ResourceSpecificPermissionGrant() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.resourceSpecificPermissionGrant";
         }
         /// <summary>
@@ -113,6 +123,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("permission", Permission);
             writer.WriteStringValue("permissionType", PermissionType);
             writer.WriteStringValue("resourceAppId", ResourceAppId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

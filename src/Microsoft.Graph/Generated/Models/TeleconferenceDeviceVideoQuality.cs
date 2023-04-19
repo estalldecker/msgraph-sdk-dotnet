@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class TeleconferenceDeviceVideoQuality : TeleconferenceDeviceMediaQuality, IParsable {
+    public class TeleconferenceDeviceVideoQuality : TeleconferenceDeviceMediaQuality, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The average inbound stream video bit rate per second.</summary>
         public double? AverageInboundBitRate {
             get { return BackingStore?.Get<double?>("averageInboundBitRate"); }
@@ -25,10 +31,14 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<double?>("averageOutboundFrameRate"); }
             set { BackingStore?.Set("averageOutboundFrameRate", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>
         /// Instantiates a new TeleconferenceDeviceVideoQuality and sets the default values.
         /// </summary>
         public TeleconferenceDeviceVideoQuality() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.teleconferenceDeviceVideoQuality";
         }
         /// <summary>
@@ -65,6 +75,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteDoubleValue("averageInboundFrameRate", AverageInboundFrameRate);
             writer.WriteDoubleValue("averageOutboundBitRate", AverageOutboundBitRate);
             writer.WriteDoubleValue("averageOutboundFrameRate", AverageOutboundFrameRate);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

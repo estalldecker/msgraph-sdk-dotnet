@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class IosGeneralDeviceConfiguration : DeviceConfiguration, IParsable {
+    public class IosGeneralDeviceConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Indicates whether or not to allow account modification when the device is in supervised mode.</summary>
         public bool? AccountBlockModification {
             get { return BackingStore?.Get<bool?>("accountBlockModification"); }
@@ -14,6 +15,11 @@ namespace Microsoft.Graph.Models {
         public bool? ActivationLockAllowWhenSupervised {
             get { return BackingStore?.Get<bool?>("activationLockAllowWhenSupervised"); }
             set { BackingStore?.Set("activationLockAllowWhenSupervised", value); }
+        }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
         }
         /// <summary>Indicates whether or not to allow AirDrop when the device is in supervised mode.</summary>
         public bool? AirDropBlocked {
@@ -103,6 +109,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<AppListType?>("appsVisibilityListType"); }
             set { BackingStore?.Set("appsVisibilityListType", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether or not to allow modification of Bluetooth settings when the device is in supervised mode (iOS 10.0 and later).</summary>
         public bool? BluetoothBlockModification {
             get { return BackingStore?.Get<bool?>("bluetoothBlockModification"); }
@@ -835,6 +843,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new IosGeneralDeviceConfiguration and sets the default values.
         /// </summary>
         public IosGeneralDeviceConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.iosGeneralDeviceConfiguration";
         }
         /// <summary>
@@ -1121,6 +1131,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("voiceDialingBlocked", VoiceDialingBlocked);
             writer.WriteBoolValue("wallpaperBlockModification", WallpaperBlockModification);
             writer.WriteBoolValue("wiFiConnectOnlyToConfiguredNetworks", WiFiConnectOnlyToConfiguredNetworks);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

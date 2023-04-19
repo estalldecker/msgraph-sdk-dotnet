@@ -1,15 +1,21 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using Microsoft.Kiota.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Windows10GeneralConfiguration : DeviceConfiguration, IParsable {
+    public class Windows10GeneralConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Indicates whether or not to Block the user from adding email accounts to the device that are not associated with a Microsoft account.</summary>
         public bool? AccountsBlockAddingNonMicrosoftAccountEmail {
             get { return BackingStore?.Get<bool?>("accountsBlockAddingNonMicrosoftAccountEmail"); }
             set { BackingStore?.Set("accountsBlockAddingNonMicrosoftAccountEmail", value); }
+        }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
         }
         /// <summary>Indicates whether or not to block the user from selecting an AntiTheft mode preference (Windows 10 Mobile only).</summary>
         public bool? AntiTheftModeBlocked {
@@ -26,6 +32,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("appsBlockWindowsStoreOriginatedApps"); }
             set { BackingStore?.Set("appsBlockWindowsStoreOriginatedApps", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Specify a list of allowed Bluetooth services and profiles in hex formatted strings.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -1195,6 +1203,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Windows10GeneralConfiguration and sets the default values.
         /// </summary>
         public Windows10GeneralConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windows10GeneralConfiguration";
         }
         /// <summary>
@@ -1621,6 +1631,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("wirelessDisplayBlockProjectionToThisDevice", WirelessDisplayBlockProjectionToThisDevice);
             writer.WriteBoolValue("wirelessDisplayBlockUserInputFromReceiver", WirelessDisplayBlockUserInputFromReceiver);
             writer.WriteBoolValue("wirelessDisplayRequirePinForPairing", WirelessDisplayRequirePinForPairing);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

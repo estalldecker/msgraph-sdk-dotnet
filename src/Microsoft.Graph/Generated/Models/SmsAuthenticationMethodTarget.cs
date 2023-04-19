@@ -1,14 +1,29 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class SmsAuthenticationMethodTarget : AuthenticationMethodTarget, IParsable {
+    public class SmsAuthenticationMethodTarget : AuthenticationMethodTarget, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Determines if users can use this authentication method to sign in to Azure AD. true if users can use this method for primary authentication, otherwise false.</summary>
         public bool? IsUsableForSignIn {
             get { return BackingStore?.Get<bool?>("isUsableForSignIn"); }
             set { BackingStore?.Set("isUsableForSignIn", value); }
+        }
+        /// <summary>
+        /// Instantiates a new SmsAuthenticationMethodTarget and sets the default values.
+        /// </summary>
+        public SmsAuthenticationMethodTarget() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -34,6 +49,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteBoolValue("isUsableForSignIn", IsUsableForSignIn);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

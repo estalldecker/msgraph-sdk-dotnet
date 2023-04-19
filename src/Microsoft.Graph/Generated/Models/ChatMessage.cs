@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ChatMessage : Entity, IParsable {
+    public class ChatMessage : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>References to attached objects like files, tabs, meetings etc.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("attachments", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The body property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -170,6 +178,20 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("mentions", value); }
         }
 #endif
+        /// <summary>The messageHistory property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public List<ChatMessageHistoryItem>? MessageHistory {
+            get { return BackingStore?.Get<List<ChatMessageHistoryItem>?>("messageHistory"); }
+            set { BackingStore?.Set("messageHistory", value); }
+        }
+#nullable restore
+#else
+        public List<ChatMessageHistoryItem> MessageHistory {
+            get { return BackingStore?.Get<List<ChatMessageHistoryItem>>("messageHistory"); }
+            set { BackingStore?.Set("messageHistory", value); }
+        }
+#endif
         /// <summary>The messageType property</summary>
         public ChatMessageType? MessageType {
             get { return BackingStore?.Get<ChatMessageType?>("messageType"); }
@@ -274,6 +296,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new chatMessage and sets the default values.
+        /// </summary>
+        public ChatMessage() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -301,6 +330,7 @@ namespace Microsoft.Graph.Models {
                 {"lastModifiedDateTime", n => { LastModifiedDateTime = n.GetDateTimeOffsetValue(); } },
                 {"locale", n => { Locale = n.GetStringValue(); } },
                 {"mentions", n => { Mentions = n.GetCollectionOfObjectValues<ChatMessageMention>(ChatMessageMention.CreateFromDiscriminatorValue)?.ToList(); } },
+                {"messageHistory", n => { MessageHistory = n.GetCollectionOfObjectValues<ChatMessageHistoryItem>(ChatMessageHistoryItem.CreateFromDiscriminatorValue)?.ToList(); } },
                 {"messageType", n => { MessageType = n.GetEnumValue<ChatMessageType>(); } },
                 {"policyViolation", n => { PolicyViolation = n.GetObjectValue<ChatMessagePolicyViolation>(ChatMessagePolicyViolation.CreateFromDiscriminatorValue); } },
                 {"reactions", n => { Reactions = n.GetCollectionOfObjectValues<ChatMessageReaction>(ChatMessageReaction.CreateFromDiscriminatorValue)?.ToList(); } },
@@ -333,6 +363,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteDateTimeOffsetValue("lastModifiedDateTime", LastModifiedDateTime);
             writer.WriteStringValue("locale", Locale);
             writer.WriteCollectionOfObjectValues<ChatMessageMention>("mentions", Mentions);
+            writer.WriteCollectionOfObjectValues<ChatMessageHistoryItem>("messageHistory", MessageHistory);
             writer.WriteEnumValue<ChatMessageType>("messageType", MessageType);
             writer.WriteObjectValue<ChatMessagePolicyViolation>("policyViolation", PolicyViolation);
             writer.WriteCollectionOfObjectValues<ChatMessageReaction>("reactions", Reactions);
@@ -341,6 +372,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("subject", Subject);
             writer.WriteStringValue("summary", Summary);
             writer.WriteStringValue("webUrl", WebUrl);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

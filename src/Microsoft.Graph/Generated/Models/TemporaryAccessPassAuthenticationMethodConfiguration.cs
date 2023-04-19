@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class TemporaryAccessPassAuthenticationMethodConfiguration : AuthenticationMethodConfiguration, IParsable {
+    public class TemporaryAccessPassAuthenticationMethodConfiguration : AuthenticationMethodConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Default length in characters of a Temporary Access Pass object. Must be between 8 and 48 characters.</summary>
         public int? DefaultLength {
             get { return BackingStore?.Get<int?>("defaultLength"); }
@@ -48,6 +56,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new TemporaryAccessPassAuthenticationMethodConfiguration and sets the default values.
         /// </summary>
         public TemporaryAccessPassAuthenticationMethodConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.temporaryAccessPassAuthenticationMethodConfiguration";
         }
         /// <summary>
@@ -84,6 +94,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("isUsableOnce", IsUsableOnce);
             writer.WriteIntValue("maximumLifetimeInMinutes", MaximumLifetimeInMinutes);
             writer.WriteIntValue("minimumLifetimeInMinutes", MinimumLifetimeInMinutes);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

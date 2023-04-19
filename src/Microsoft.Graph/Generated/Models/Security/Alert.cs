@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.Security {
-    public class Alert : Entity, IParsable {
+    public class Alert : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>The adversary or activity group that is associated with this alert.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +20,11 @@ namespace Microsoft.Graph.Models.Security {
             set { BackingStore?.Set("actorDisplayName", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>URL for the alert page in the Microsoft 365 Defender portal.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -47,6 +53,8 @@ namespace Microsoft.Graph.Models.Security {
             set { BackingStore?.Set("assignedTo", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The attack kill-chain category that the alert belongs to. Aligned with the MITRE ATT&amp;CK framework.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -299,6 +307,13 @@ namespace Microsoft.Graph.Models.Security {
         }
 #endif
         /// <summary>
+        /// Instantiates a new alert and sets the default values.
+        /// </summary>
+        public Alert() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -376,6 +391,7 @@ namespace Microsoft.Graph.Models.Security {
             writer.WriteStringValue("threatDisplayName", ThreatDisplayName);
             writer.WriteStringValue("threatFamilyName", ThreatFamilyName);
             writer.WriteStringValue("title", Title);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

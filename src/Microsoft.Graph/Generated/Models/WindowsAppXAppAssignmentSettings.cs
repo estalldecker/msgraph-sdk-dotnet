@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class WindowsAppXAppAssignmentSettings : MobileAppAssignmentSettings, IParsable {
+    public class WindowsAppXAppAssignmentSettings : MobileAppAssignmentSettings, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>When TRUE, indicates that device execution context will be used for the AppX mobile app. When FALSE, indicates that user context will be used for the AppX mobile app. By default, this property is set to FALSE. Once this property has been set to TRUE it cannot be changed.</summary>
         public bool? UseDeviceContext {
             get { return BackingStore?.Get<bool?>("useDeviceContext"); }
@@ -14,6 +22,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new WindowsAppXAppAssignmentSettings and sets the default values.
         /// </summary>
         public WindowsAppXAppAssignmentSettings() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windowsAppXAppAssignmentSettings";
         }
         /// <summary>
@@ -40,6 +50,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteBoolValue("useDeviceContext", UseDeviceContext);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

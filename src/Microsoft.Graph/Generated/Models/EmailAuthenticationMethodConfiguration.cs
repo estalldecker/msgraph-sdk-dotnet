@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class EmailAuthenticationMethodConfiguration : AuthenticationMethodConfiguration, IParsable {
+    public class EmailAuthenticationMethodConfiguration : AuthenticationMethodConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Determines whether email OTP is usable by external users for authentication. Possible values are: default, enabled, disabled, unknownFutureValue. Tenants in the default state who did not use public preview will automatically have email OTP enabled beginning in October 2021.</summary>
         public ExternalEmailOtpState? AllowExternalIdToUseEmailOtp {
             get { return BackingStore?.Get<ExternalEmailOtpState?>("allowExternalIdToUseEmailOtp"); }
             set { BackingStore?.Set("allowExternalIdToUseEmailOtp", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>A collection of groups that are enabled to use the authentication method.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -28,6 +36,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new EmailAuthenticationMethodConfiguration and sets the default values.
         /// </summary>
         public EmailAuthenticationMethodConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.emailAuthenticationMethodConfiguration";
         }
         /// <summary>
@@ -56,6 +66,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteEnumValue<ExternalEmailOtpState>("allowExternalIdToUseEmailOtp", AllowExternalIdToUseEmailOtp);
             writer.WriteCollectionOfObjectValues<AuthenticationMethodTarget>("includeTargets", IncludeTargets);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

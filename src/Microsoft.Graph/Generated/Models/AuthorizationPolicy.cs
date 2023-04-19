@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AuthorizationPolicy : PolicyBase, IParsable {
+    public class AuthorizationPolicy : PolicyBase, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Indicates whether users can sign up for email based subscriptions.</summary>
         public bool? AllowedToSignUpEmailBasedSubscriptions {
             get { return BackingStore?.Get<bool?>("allowedToSignUpEmailBasedSubscriptions"); }
@@ -30,6 +36,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("allowUserConsentForRiskyApps"); }
             set { BackingStore?.Set("allowUserConsentForRiskyApps", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>To disable the use of MSOL PowerShell set this property to true. This will also disable user-based access to the legacy service endpoint used by MSOL PowerShell. This does not affect Azure AD Connect or Microsoft Graph.</summary>
         public bool? BlockMsolPowerShell {
             get { return BackingStore?.Get<bool?>("blockMsolPowerShell"); }
@@ -58,6 +66,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new AuthorizationPolicy and sets the default values.
         /// </summary>
         public AuthorizationPolicy() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.authorizationPolicy";
         }
         /// <summary>
@@ -98,6 +108,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("blockMsolPowerShell", BlockMsolPowerShell);
             writer.WriteObjectValue<Microsoft.Graph.Models.DefaultUserRolePermissions>("defaultUserRolePermissions", DefaultUserRolePermissions);
             writer.WriteGuidValue("guestUserRoleId", GuestUserRoleId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

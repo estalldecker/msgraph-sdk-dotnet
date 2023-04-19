@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class UnifiedRoleManagementPolicyExpirationRule : UnifiedRoleManagementPolicyRule, IParsable {
+    public class UnifiedRoleManagementPolicyExpirationRule : UnifiedRoleManagementPolicyRule, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether expiration is required or if it&apos;s a permanently active assignment or eligibility.</summary>
         public bool? IsExpirationRequired {
             get { return BackingStore?.Get<bool?>("isExpirationRequired"); }
@@ -19,6 +27,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new UnifiedRoleManagementPolicyExpirationRule and sets the default values.
         /// </summary>
         public UnifiedRoleManagementPolicyExpirationRule() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule";
         }
         /// <summary>
@@ -47,6 +57,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteBoolValue("isExpirationRequired", IsExpirationRequired);
             writer.WriteTimeSpanValue("maximumDuration", MaximumDuration);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

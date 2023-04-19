@@ -1,11 +1,12 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using Microsoft.Kiota.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class IosUpdateConfiguration : DeviceConfiguration, IParsable {
+    public class IosUpdateConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Active Hours End (active hours mean the time window when updates install should not happen)</summary>
         public Time? ActiveHoursEnd {
             get { return BackingStore?.Get<Time?>("activeHoursEnd"); }
@@ -16,6 +17,13 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<Time?>("activeHoursStart"); }
             set { BackingStore?.Set("activeHoursStart", value); }
         }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Days in week for which active hours are configured. This collection can contain a maximum of 7 elements.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -39,6 +47,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new IosUpdateConfiguration and sets the default values.
         /// </summary>
         public IosUpdateConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.iosUpdateConfiguration";
         }
         /// <summary>
@@ -71,6 +81,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteTimeValue("activeHoursStart", ActiveHoursStart);
             writer.WriteCollectionOfEnumValues<DayOfWeekObject>("scheduledInstallDays", ScheduledInstallDays);
             writer.WriteIntValue("utcTimeOffsetInMinutes", UtcTimeOffsetInMinutes);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

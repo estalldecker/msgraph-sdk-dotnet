@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Win32LobAppPowerShellScriptRule : Win32LobAppRule, IParsable {
+    public class Win32LobAppPowerShellScriptRule : Win32LobAppRule, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The script output comparison value. Do not specify a value if the rule is used for detection.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -76,6 +84,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Win32LobAppPowerShellScriptRule and sets the default values.
         /// </summary>
         public Win32LobAppPowerShellScriptRule() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.win32LobAppPowerShellScriptRule";
         }
         /// <summary>
@@ -116,6 +126,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("runAs32Bit", RunAs32Bit);
             writer.WriteEnumValue<RunAsAccountType>("runAsAccount", RunAsAccount);
             writer.WriteStringValue("scriptContent", ScriptContent);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

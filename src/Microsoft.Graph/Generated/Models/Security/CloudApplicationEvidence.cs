@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.Security {
-    public class CloudApplicationEvidence : AlertEvidence, IParsable {
+    public class CloudApplicationEvidence : AlertEvidence, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Unique identifier of the application.</summary>
         public long? AppId {
             get { return BackingStore?.Get<long?>("appId"); }
             set { BackingStore?.Set("appId", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Name of the application.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -49,6 +57,13 @@ namespace Microsoft.Graph.Models.Security {
             set { BackingStore?.Set("saasAppId", value); }
         }
         /// <summary>
+        /// Instantiates a new CloudApplicationEvidence and sets the default values.
+        /// </summary>
+        public CloudApplicationEvidence() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -80,6 +95,7 @@ namespace Microsoft.Graph.Models.Security {
             writer.WriteLongValue("instanceId", InstanceId);
             writer.WriteStringValue("instanceName", InstanceName);
             writer.WriteLongValue("saasAppId", SaasAppId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

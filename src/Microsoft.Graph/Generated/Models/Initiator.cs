@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Initiator : Identity, IParsable {
+    public class Initiator : Identity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Type of initiator. Possible values are: user, application, system, unknownFutureValue.</summary>
         public Microsoft.Graph.Models.InitiatorType? InitiatorType {
             get { return BackingStore?.Get<Microsoft.Graph.Models.InitiatorType?>("initiatorType"); }
@@ -14,6 +22,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Initiator and sets the default values.
         /// </summary>
         public Initiator() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.initiator";
         }
         /// <summary>
@@ -40,6 +50,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteEnumValue<InitiatorType>("initiatorType", InitiatorType);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

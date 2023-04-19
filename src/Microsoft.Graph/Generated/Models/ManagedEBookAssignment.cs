@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,14 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// Contains properties used to assign a eBook to a group.
     /// </summary>
-    public class ManagedEBookAssignment : Entity, IParsable {
+    public class ManagedEBookAssignment : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Possible values for the install intent chosen by the admin.</summary>
         public Microsoft.Graph.Models.InstallIntent? InstallIntent {
             get { return BackingStore?.Get<Microsoft.Graph.Models.InstallIntent?>("installIntent"); }
@@ -27,6 +35,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("target", value); }
         }
 #endif
+        /// <summary>
+        /// Instantiates a new managedEBookAssignment and sets the default values.
+        /// </summary>
+        public ManagedEBookAssignment() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -57,6 +72,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteEnumValue<InstallIntent>("installIntent", InstallIntent);
             writer.WriteObjectValue<DeviceAndAppManagementAssignmentTarget>("target", Target);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

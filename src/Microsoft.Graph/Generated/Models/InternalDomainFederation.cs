@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class InternalDomainFederation : SamlOrWsFedProvider, IParsable {
+    public class InternalDomainFederation : SamlOrWsFedProvider, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>URL of the endpoint used by active clients when authenticating with federated domains set up for single sign-on in Azure Active Directory (Azure AD). Corresponds to the ActiveLogOnUri property of the Set-MsolDomainFederationSettings MSOnline v1 PowerShell cmdlet.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +20,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("activeSignInUri", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Determines whether Azure AD accepts the MFA performed by the federated IdP when a federated user accesses an application that is governed by a conditional access policy that requires MFA. The possible values are: acceptIfMfaDoneByFederatedIdp, enforceMfaByFederatedIdp, rejectMfaByFederatedIdp, unknownFutureValue. For more information, see federatedIdpMfaBehavior values.</summary>
         public Microsoft.Graph.Models.FederatedIdpMfaBehavior? FederatedIdpMfaBehavior {
             get { return BackingStore?.Get<Microsoft.Graph.Models.FederatedIdpMfaBehavior?>("federatedIdpMfaBehavior"); }
@@ -80,6 +88,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new InternalDomainFederation and sets the default values.
         /// </summary>
         public InternalDomainFederation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.internalDomainFederation";
         }
         /// <summary>
@@ -118,6 +128,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<PromptLoginBehavior>("promptLoginBehavior", PromptLoginBehavior);
             writer.WriteObjectValue<Microsoft.Graph.Models.SigningCertificateUpdateStatus>("signingCertificateUpdateStatus", SigningCertificateUpdateStatus);
             writer.WriteStringValue("signOutUri", SignOutUri);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

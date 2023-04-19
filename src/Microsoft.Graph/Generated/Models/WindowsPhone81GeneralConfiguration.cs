@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class WindowsPhone81GeneralConfiguration : DeviceConfiguration, IParsable {
+    public class WindowsPhone81GeneralConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Value indicating whether this policy only applies to Windows Phone 8.1. This property is read-only.</summary>
         public bool? ApplyOnlyToWindowsPhone81 {
             get { return BackingStore?.Get<bool?>("applyOnlyToWindowsPhone81"); }
@@ -15,6 +21,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("appsBlockCopyPaste"); }
             set { BackingStore?.Set("appsBlockCopyPaste", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether or not to block bluetooth.</summary>
         public bool? BluetoothBlocked {
             get { return BackingStore?.Get<bool?>("bluetoothBlocked"); }
@@ -163,6 +171,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new WindowsPhone81GeneralConfiguration and sets the default values.
         /// </summary>
         public WindowsPhone81GeneralConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windowsPhone81GeneralConfiguration";
         }
         /// <summary>
@@ -244,6 +254,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("wifiBlocked", WifiBlocked);
             writer.WriteBoolValue("wifiBlockHotspotReporting", WifiBlockHotspotReporting);
             writer.WriteBoolValue("windowsStoreBlocked", WindowsStoreBlocked);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

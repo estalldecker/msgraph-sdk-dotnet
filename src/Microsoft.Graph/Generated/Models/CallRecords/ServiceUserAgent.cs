@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.CallRecords {
-    public class ServiceUserAgent : UserAgent, IParsable {
+    public class ServiceUserAgent : UserAgent, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The role property</summary>
         public ServiceRole? Role {
             get { return BackingStore?.Get<ServiceRole?>("role"); }
@@ -14,6 +22,8 @@ namespace Microsoft.Graph.Models.CallRecords {
         /// Instantiates a new ServiceUserAgent and sets the default values.
         /// </summary>
         public ServiceUserAgent() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.callRecords.serviceUserAgent";
         }
         /// <summary>
@@ -40,6 +50,7 @@ namespace Microsoft.Graph.Models.CallRecords {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteEnumValue<ServiceRole>("role", Role);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

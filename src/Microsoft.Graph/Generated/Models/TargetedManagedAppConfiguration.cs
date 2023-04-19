@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class TargetedManagedAppConfiguration : ManagedAppConfiguration, IParsable {
+    public class TargetedManagedAppConfiguration : ManagedAppConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>List of apps to which the policy is deployed.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -33,6 +39,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("assignments", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Count of apps to which the current policy is deployed.</summary>
         public int? DeployedAppCount {
             get { return BackingStore?.Get<int?>("deployedAppCount"); }
@@ -61,6 +69,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new TargetedManagedAppConfiguration and sets the default values.
         /// </summary>
         public TargetedManagedAppConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.targetedManagedAppConfiguration";
         }
         /// <summary>
@@ -95,6 +105,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteIntValue("deployedAppCount", DeployedAppCount);
             writer.WriteObjectValue<ManagedAppPolicyDeploymentSummary>("deploymentSummary", DeploymentSummary);
             writer.WriteBoolValue("isAssigned", IsAssigned);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,11 +1,17 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using Microsoft.Kiota.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class WindowsUpdateForBusinessConfiguration : DeviceConfiguration, IParsable {
+    public class WindowsUpdateForBusinessConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>When TRUE, allows eligible Windows 10 devices to upgrade to Windows 11. When FALSE, implies the device stays on the existing operating system. Returned by default. Query parameters are not supported.</summary>
         public bool? AllowWindows11Upgrade {
             get { return BackingStore?.Get<bool?>("allowWindows11Upgrade"); }
@@ -21,6 +27,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<AutoRestartNotificationDismissalMethod?>("autoRestartNotificationDismissal"); }
             set { BackingStore?.Set("autoRestartNotificationDismissal", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Which branch devices will receive their updates from</summary>
         public WindowsUpdateType? BusinessReadyUpdatesOnly {
             get { return BackingStore?.Get<WindowsUpdateType?>("businessReadyUpdatesOnly"); }
@@ -199,6 +207,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new WindowsUpdateForBusinessConfiguration and sets the default values.
         /// </summary>
         public WindowsUpdateForBusinessConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windowsUpdateForBusinessConfiguration";
         }
         /// <summary>
@@ -293,6 +303,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<WindowsUpdateForBusinessUpdateWeeks>("updateWeeks", UpdateWeeks);
             writer.WriteEnumValue<Enablement>("userPauseAccess", UserPauseAccess);
             writer.WriteEnumValue<Enablement>("userWindowsUpdateScanAccess", UserWindowsUpdateScanAccess);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

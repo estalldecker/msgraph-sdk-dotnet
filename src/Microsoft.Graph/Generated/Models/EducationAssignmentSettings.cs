@@ -1,14 +1,29 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class EducationAssignmentSettings : Entity, IParsable {
+    public class EducationAssignmentSettings : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether turn-in celebration animation will be shown. A value of true indicates that the animation will not be shown. Default value is false.</summary>
         public bool? SubmissionAnimationDisabled {
             get { return BackingStore?.Get<bool?>("submissionAnimationDisabled"); }
             set { BackingStore?.Set("submissionAnimationDisabled", value); }
+        }
+        /// <summary>
+        /// Instantiates a new EducationAssignmentSettings and sets the default values.
+        /// </summary>
+        public EducationAssignmentSettings() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -34,6 +49,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteBoolValue("submissionAnimationDisabled", SubmissionAnimationDisabled);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

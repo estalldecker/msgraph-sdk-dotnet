@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Group : DirectoryObject, IParsable {
+    public class Group : DirectoryObject, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>The list of users or groups that are allowed to create post&apos;s or calendar events in this group. If this list is non-empty then only users or groups listed here are allowed to post.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +20,11 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("acceptedSenders", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Indicates if people external to the organization can send messages to the group. Default value is false. Returned only on $select. Supported only on the Get group API (GET /groups/{ID}).</summary>
         public bool? AllowExternalSenders {
             get { return BackingStore?.Get<bool?>("allowExternalSenders"); }
@@ -71,6 +77,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("autoSubscribeNewMembers"); }
             set { BackingStore?.Set("autoSubscribeNewMembers", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The group&apos;s calendar. Read-only.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -772,9 +780,11 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
-        /// Instantiates a new group and sets the default values.
+        /// Instantiates a new Group and sets the default values.
         /// </summary>
         public Group() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.group";
         }
         /// <summary>
@@ -929,6 +939,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<DirectoryObject>("transitiveMembers", TransitiveMembers);
             writer.WriteIntValue("unseenCount", UnseenCount);
             writer.WriteStringValue("visibility", Visibility);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

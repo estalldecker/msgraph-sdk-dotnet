@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.Security {
-    public class Incident : Entity, IParsable {
+    public class Incident : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The list of related alerts. Supports $expand.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -33,6 +39,8 @@ namespace Microsoft.Graph.Models.Security {
             set { BackingStore?.Set("assignedTo", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The specification for the incident. Possible values are: unknown, falsePositive, truePositive, informationalExpectedActivity, unknownFutureValue.</summary>
         public AlertClassification? Classification {
             get { return BackingStore?.Get<AlertClassification?>("classification"); }
@@ -148,6 +156,13 @@ namespace Microsoft.Graph.Models.Security {
         }
 #endif
         /// <summary>
+        /// Instantiates a new incident and sets the default values.
+        /// </summary>
+        public Incident() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -197,6 +212,7 @@ namespace Microsoft.Graph.Models.Security {
             writer.WriteEnumValue<AlertSeverity>("severity", Severity);
             writer.WriteEnumValue<IncidentStatus>("status", Status);
             writer.WriteStringValue("tenantId", TenantId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

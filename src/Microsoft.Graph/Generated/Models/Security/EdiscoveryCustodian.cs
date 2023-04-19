@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.Security {
-    public class EdiscoveryCustodian : DataSourceContainer, IParsable {
+    public class EdiscoveryCustodian : DataSourceContainer, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Date and time the custodian acknowledged a hold notification.</summary>
         public DateTimeOffset? AcknowledgedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("acknowledgedDateTime"); }
             set { BackingStore?.Set("acknowledgedDateTime", value); }
         }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Email address of the custodian.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -84,6 +92,8 @@ namespace Microsoft.Graph.Models.Security {
         /// Instantiates a new EdiscoveryCustodian and sets the default values.
         /// </summary>
         public EdiscoveryCustodian() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.security.ediscoveryCustodian";
         }
         /// <summary>
@@ -120,6 +130,7 @@ namespace Microsoft.Graph.Models.Security {
             writer.WriteCollectionOfObjectValues<SiteSource>("siteSources", SiteSources);
             writer.WriteCollectionOfObjectValues<UnifiedGroupSource>("unifiedGroupSources", UnifiedGroupSources);
             writer.WriteCollectionOfObjectValues<UserSource>("userSources", UserSources);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

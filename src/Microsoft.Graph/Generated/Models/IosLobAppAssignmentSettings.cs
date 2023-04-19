@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class IosLobAppAssignmentSettings : MobileAppAssignmentSettings, IParsable {
+    public class IosLobAppAssignmentSettings : MobileAppAssignmentSettings, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>When TRUE, indicates that the app can be uninstalled by the user. When FALSE, indicates that the app cannot be uninstalled by the user. By default, this property is set to null which internally is treated as TRUE.</summary>
         public bool? IsRemovable {
             get { return BackingStore?.Get<bool?>("isRemovable"); }
@@ -33,6 +41,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new IosLobAppAssignmentSettings and sets the default values.
         /// </summary>
         public IosLobAppAssignmentSettings() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.iosLobAppAssignmentSettings";
         }
         /// <summary>
@@ -63,6 +73,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("isRemovable", IsRemovable);
             writer.WriteBoolValue("uninstallOnDeviceRemoval", UninstallOnDeviceRemoval);
             writer.WriteStringValue("vpnConfigurationId", VpnConfigurationId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

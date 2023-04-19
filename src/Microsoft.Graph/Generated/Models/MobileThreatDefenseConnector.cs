@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,12 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// Entity which represents a connection to Mobile Threat Defense partner.
     /// </summary>
-    public class MobileThreatDefenseConnector : Entity, IParsable {
+    public class MobileThreatDefenseConnector : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>When TRUE, indicates the Mobile Threat Defense partner may collect metadata about installed applications from Intune for IOS devices. When FALSE, indicates the Mobile Threat Defense partner may not collect metadata about installed applications from Intune for IOS devices. Default value is FALSE.</summary>
         public bool? AllowPartnerToCollectIOSApplicationMetadata {
             get { return BackingStore?.Get<bool?>("allowPartnerToCollectIOSApplicationMetadata"); }
@@ -33,6 +39,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("androidMobileApplicationManagementEnabled"); }
             set { BackingStore?.Set("androidMobileApplicationManagementEnabled", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>For IOS, set whether Intune must receive data from the Mobile Threat Defense partner prior to marking a device compliant</summary>
         public bool? IosDeviceBlockedOnMissingPartnerData {
             get { return BackingStore?.Get<bool?>("iosDeviceBlockedOnMissingPartnerData"); }
@@ -82,6 +90,13 @@ namespace Microsoft.Graph.Models {
         public bool? WindowsEnabled {
             get { return BackingStore?.Get<bool?>("windowsEnabled"); }
             set { BackingStore?.Set("windowsEnabled", value); }
+        }
+        /// <summary>
+        /// Instantiates a new mobileThreatDefenseConnector and sets the default values.
+        /// </summary>
+        public MobileThreatDefenseConnector() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -135,6 +150,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("partnerUnsupportedOsVersionBlocked", PartnerUnsupportedOsVersionBlocked);
             writer.WriteBoolValue("windowsDeviceBlockedOnMissingPartnerData", WindowsDeviceBlockedOnMissingPartnerData);
             writer.WriteBoolValue("windowsEnabled", WindowsEnabled);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

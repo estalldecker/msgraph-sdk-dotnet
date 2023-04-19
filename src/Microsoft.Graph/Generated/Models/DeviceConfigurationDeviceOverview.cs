@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class DeviceConfigurationDeviceOverview : Entity, IParsable {
+    public class DeviceConfigurationDeviceOverview : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Version of the policy for that overview</summary>
         public int? ConfigurationVersion {
             get { return BackingStore?.Get<int?>("configurationVersion"); }
@@ -39,6 +47,13 @@ namespace Microsoft.Graph.Models {
         public int? SuccessCount {
             get { return BackingStore?.Get<int?>("successCount"); }
             set { BackingStore?.Set("successCount", value); }
+        }
+        /// <summary>
+        /// Instantiates a new deviceConfigurationDeviceOverview and sets the default values.
+        /// </summary>
+        public DeviceConfigurationDeviceOverview() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -76,6 +91,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteIntValue("notApplicableCount", NotApplicableCount);
             writer.WriteIntValue("pendingCount", PendingCount);
             writer.WriteIntValue("successCount", SuccessCount);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

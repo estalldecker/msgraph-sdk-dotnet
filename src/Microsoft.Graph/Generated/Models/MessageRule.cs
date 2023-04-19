@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class MessageRule : Entity, IParsable {
+    public class MessageRule : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Actions to be taken on a message when the corresponding conditions are fulfilled.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +20,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("actions", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Conditions that when fulfilled, will trigger the corresponding actions for that rule.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -82,6 +90,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("sequence", value); }
         }
         /// <summary>
+        /// Instantiates a new messageRule and sets the default values.
+        /// </summary>
+        public MessageRule() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -119,6 +134,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("isEnabled", IsEnabled);
             writer.WriteBoolValue("isReadOnly", IsReadOnly);
             writer.WriteIntValue("sequence", Sequence);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

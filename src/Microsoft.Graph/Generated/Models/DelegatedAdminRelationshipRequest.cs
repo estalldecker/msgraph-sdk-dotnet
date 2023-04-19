@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class DelegatedAdminRelationshipRequest : Entity, IParsable {
+    public class DelegatedAdminRelationshipRequest : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>The action property</summary>
         public DelegatedAdminRelationshipRequestAction? Action {
             get { return BackingStore?.Get<DelegatedAdminRelationshipRequestAction?>("action"); }
             set { BackingStore?.Set("action", value); }
         }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The date and time in ISO 8601 format and in UTC time when the relationship request was created. Read-only.</summary>
         public DateTimeOffset? CreatedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("createdDateTime"); }
@@ -24,6 +32,13 @@ namespace Microsoft.Graph.Models {
         public DelegatedAdminRelationshipRequestStatus? Status {
             get { return BackingStore?.Get<DelegatedAdminRelationshipRequestStatus?>("status"); }
             set { BackingStore?.Set("status", value); }
+        }
+        /// <summary>
+        /// Instantiates a new delegatedAdminRelationshipRequest and sets the default values.
+        /// </summary>
+        public DelegatedAdminRelationshipRequest() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -55,6 +70,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteDateTimeOffsetValue("createdDateTime", CreatedDateTime);
             writer.WriteDateTimeOffsetValue("lastModifiedDateTime", LastModifiedDateTime);
             writer.WriteEnumValue<DelegatedAdminRelationshipRequestStatus>("status", Status);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

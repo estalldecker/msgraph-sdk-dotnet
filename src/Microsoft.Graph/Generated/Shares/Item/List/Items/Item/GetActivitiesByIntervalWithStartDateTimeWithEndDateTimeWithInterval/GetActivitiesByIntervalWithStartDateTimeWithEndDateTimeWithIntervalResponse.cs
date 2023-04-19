@@ -1,11 +1,19 @@
 using Microsoft.Graph.Models;
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Shares.Item.List.Items.Item.GetActivitiesByIntervalWithStartDateTimeWithEndDateTimeWithInterval {
-    public class GetActivitiesByIntervalWithStartDateTimeWithEndDateTimeWithIntervalResponse : BaseCollectionPaginationCountResponse, IParsable {
+    public class GetActivitiesByIntervalWithStartDateTimeWithEndDateTimeWithIntervalResponse : BaseCollectionPaginationCountResponse, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The value property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -20,6 +28,13 @@ namespace Microsoft.Graph.Shares.Item.List.Items.Item.GetActivitiesByIntervalWit
             set { BackingStore?.Set("value", value); }
         }
 #endif
+        /// <summary>
+        /// Instantiates a new getActivitiesByIntervalWithStartDateTimeWithEndDateTimeWithIntervalResponse and sets the default values.
+        /// </summary>
+        public GetActivitiesByIntervalWithStartDateTimeWithEndDateTimeWithIntervalResponse() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -44,6 +59,7 @@ namespace Microsoft.Graph.Shares.Item.List.Items.Item.GetActivitiesByIntervalWit
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteCollectionOfObjectValues<ItemActivityStat>("value", Value);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

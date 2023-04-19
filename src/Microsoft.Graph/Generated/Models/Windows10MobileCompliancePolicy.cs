@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Windows10MobileCompliancePolicy : DeviceCompliancePolicy, IParsable {
+    public class Windows10MobileCompliancePolicy : DeviceCompliancePolicy, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Require devices to be reported healthy by Windows Device Health Attestation - bit locker is enabled</summary>
         public bool? BitLockerEnabled {
             get { return BackingStore?.Get<bool?>("bitLockerEnabled"); }
@@ -107,6 +115,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Windows10MobileCompliancePolicy and sets the default values.
         /// </summary>
         public Windows10MobileCompliancePolicy() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windows10MobileCompliancePolicy";
         }
         /// <summary>
@@ -163,6 +173,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("passwordRequireToUnlockFromIdle", PasswordRequireToUnlockFromIdle);
             writer.WriteBoolValue("secureBootEnabled", SecureBootEnabled);
             writer.WriteBoolValue("storageRequireEncryption", StorageRequireEncryption);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

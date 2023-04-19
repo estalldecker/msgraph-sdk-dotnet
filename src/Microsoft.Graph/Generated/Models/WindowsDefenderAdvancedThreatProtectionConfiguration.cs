@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class WindowsDefenderAdvancedThreatProtectionConfiguration : DeviceConfiguration, IParsable {
+    public class WindowsDefenderAdvancedThreatProtectionConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Windows Defender AdvancedThreatProtection &apos;Allow Sample Sharing&apos; Rule</summary>
         public bool? AllowSampleSharing {
             get { return BackingStore?.Get<bool?>("allowSampleSharing"); }
             set { BackingStore?.Set("allowSampleSharing", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Expedite Windows Defender Advanced Threat Protection telemetry reporting frequency.</summary>
         public bool? EnableExpeditedTelemetryReporting {
             get { return BackingStore?.Get<bool?>("enableExpeditedTelemetryReporting"); }
@@ -19,6 +27,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new WindowsDefenderAdvancedThreatProtectionConfiguration and sets the default values.
         /// </summary>
         public WindowsDefenderAdvancedThreatProtectionConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration";
         }
         /// <summary>
@@ -47,6 +57,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteBoolValue("allowSampleSharing", AllowSampleSharing);
             writer.WriteBoolValue("enableExpeditedTelemetryReporting", EnableExpeditedTelemetryReporting);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

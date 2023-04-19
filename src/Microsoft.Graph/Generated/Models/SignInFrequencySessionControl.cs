@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class SignInFrequencySessionControl : ConditionalAccessSessionControl, IParsable {
+    public class SignInFrequencySessionControl : ConditionalAccessSessionControl, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The possible values are primaryAndSecondaryAuthentication, secondaryAuthentication, unknownFutureValue.</summary>
         public SignInFrequencyAuthenticationType? AuthenticationType {
             get { return BackingStore?.Get<SignInFrequencyAuthenticationType?>("authenticationType"); }
             set { BackingStore?.Set("authenticationType", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The possible values are timeBased, everyTime, unknownFutureValue.</summary>
         public SignInFrequencyInterval? FrequencyInterval {
             get { return BackingStore?.Get<SignInFrequencyInterval?>("frequencyInterval"); }
@@ -29,6 +37,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new SignInFrequencySessionControl and sets the default values.
         /// </summary>
         public SignInFrequencySessionControl() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.signInFrequencySessionControl";
         }
         /// <summary>
@@ -61,6 +71,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<SignInFrequencyInterval>("frequencyInterval", FrequencyInterval);
             writer.WriteEnumValue<SigninFrequencyType>("type", Type);
             writer.WriteIntValue("value", Value);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

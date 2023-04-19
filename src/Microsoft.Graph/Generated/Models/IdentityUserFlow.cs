@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class IdentityUserFlow : Entity, IParsable {
+    public class IdentityUserFlow : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The userFlowType property</summary>
         public Microsoft.Graph.Models.UserFlowType? UserFlowType {
             get { return BackingStore?.Get<Microsoft.Graph.Models.UserFlowType?>("userFlowType"); }
@@ -14,6 +22,13 @@ namespace Microsoft.Graph.Models {
         public float? UserFlowTypeVersion {
             get { return BackingStore?.Get<float?>("userFlowTypeVersion"); }
             set { BackingStore?.Set("userFlowTypeVersion", value); }
+        }
+        /// <summary>
+        /// Instantiates a new IdentityUserFlow and sets the default values.
+        /// </summary>
+        public IdentityUserFlow() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -45,6 +60,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteEnumValue<UserFlowType>("userFlowType", UserFlowType);
             writer.WriteFloatValue("userFlowTypeVersion", UserFlowTypeVersion);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

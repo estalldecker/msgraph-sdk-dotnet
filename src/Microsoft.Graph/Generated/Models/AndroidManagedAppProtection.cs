@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AndroidManagedAppProtection : TargetedManagedAppProtection, IParsable {
+    public class AndroidManagedAppProtection : TargetedManagedAppProtection, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>List of apps to which the policy is deployed.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("apps", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Friendly name of the preferred custom browser to open weblink on Android. When this property is configured, ManagedBrowserToOpenLinksRequired should be true.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -113,6 +121,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new AndroidManagedAppProtection and sets the default values.
         /// </summary>
         public AndroidManagedAppProtection() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.androidManagedAppProtection";
         }
         /// <summary>
@@ -157,6 +167,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("minimumRequiredPatchVersion", MinimumRequiredPatchVersion);
             writer.WriteStringValue("minimumWarningPatchVersion", MinimumWarningPatchVersion);
             writer.WriteBoolValue("screenCaptureBlocked", ScreenCaptureBlocked);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

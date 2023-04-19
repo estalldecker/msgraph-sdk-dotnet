@@ -1,20 +1,28 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Windows81GeneralConfiguration : DeviceConfiguration, IParsable {
+    public class Windows81GeneralConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Indicates whether or not to Block the user from adding email accounts to the device that are not associated with a Microsoft account.</summary>
         public bool? AccountsBlockAddingNonMicrosoftAccountEmail {
             get { return BackingStore?.Get<bool?>("accountsBlockAddingNonMicrosoftAccountEmail"); }
             set { BackingStore?.Set("accountsBlockAddingNonMicrosoftAccountEmail", value); }
+        }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
         }
         /// <summary>Value indicating whether this policy only applies to Windows 8.1. This property is read-only.</summary>
         public bool? ApplyOnlyToWindows81 {
             get { return BackingStore?.Get<bool?>("applyOnlyToWindows81"); }
             set { BackingStore?.Set("applyOnlyToWindows81", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether or not to block auto fill.</summary>
         public bool? BrowserBlockAutofill {
             get { return BackingStore?.Get<bool?>("browserBlockAutofill"); }
@@ -201,6 +209,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Windows81GeneralConfiguration and sets the default values.
         /// </summary>
         public Windows81GeneralConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windows81GeneralConfiguration";
         }
         /// <summary>
@@ -290,6 +300,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("updatesRequireAutomaticUpdates", UpdatesRequireAutomaticUpdates);
             writer.WriteEnumValue<WindowsUserAccountControlSettings>("userAccountControlSettings", UserAccountControlSettings);
             writer.WriteStringValue("workFoldersUrl", WorkFoldersUrl);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

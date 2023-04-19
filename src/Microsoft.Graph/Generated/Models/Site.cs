@@ -1,11 +1,17 @@
 using Microsoft.Graph.Models.TermStore;
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Site : BaseItem, IParsable {
+    public class Site : BaseItem, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Analytics about the view activities that took place in this site.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -20,6 +26,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("analytics", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The collection of column definitions reusable across lists under this site.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -276,6 +284,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new site and sets the default values.
         /// </summary>
         public Site() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.site";
         }
         /// <summary>
@@ -338,6 +348,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<Site>("sites", Sites);
             writer.WriteObjectValue<Store>("termStore", TermStore);
             writer.WriteCollectionOfObjectValues<Store>("termStores", TermStores);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }
