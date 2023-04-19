@@ -1,11 +1,17 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AppManagementPolicy : PolicyBase, IParsable {
-        /// <summary>The appliesTo property</summary>
+    public class AppManagementPolicy : PolicyBase, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Collection of applications and service principals to which the policy is applied.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public List<DirectoryObject>? AppliesTo {
@@ -19,12 +25,14 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("appliesTo", value); }
         }
 #endif
-        /// <summary>The isEnabled property</summary>
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
+        /// <summary>Denotes whether the policy is enabled.</summary>
         public bool? IsEnabled {
             get { return BackingStore?.Get<bool?>("isEnabled"); }
             set { BackingStore?.Set("isEnabled", value); }
         }
-        /// <summary>The restrictions property</summary>
+        /// <summary>Restrictions that apply to an application or service principal object.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public AppManagementConfiguration? Restrictions {
@@ -42,6 +50,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new AppManagementPolicy and sets the default values.
         /// </summary>
         public AppManagementPolicy() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.appManagementPolicy";
         }
         /// <summary>
@@ -72,6 +82,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<DirectoryObject>("appliesTo", AppliesTo);
             writer.WriteBoolValue("isEnabled", IsEnabled);
             writer.WriteObjectValue<AppManagementConfiguration>("restrictions", Restrictions);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

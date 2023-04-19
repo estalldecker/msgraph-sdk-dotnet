@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class MicrosoftStoreForBusinessApp : MobileApp, IParsable {
+    public class MicrosoftStoreForBusinessApp : MobileApp, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The licenseType property</summary>
         public MicrosoftStoreForBusinessLicenseType? LicenseType {
             get { return BackingStore?.Get<MicrosoftStoreForBusinessLicenseType?>("licenseType"); }
@@ -52,6 +60,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new MicrosoftStoreForBusinessApp and sets the default values.
         /// </summary>
         public MicrosoftStoreForBusinessApp() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.microsoftStoreForBusinessApp";
         }
         /// <summary>
@@ -86,6 +96,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("productKey", ProductKey);
             writer.WriteIntValue("totalLicenseCount", TotalLicenseCount);
             writer.WriteIntValue("usedLicenseCount", UsedLicenseCount);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

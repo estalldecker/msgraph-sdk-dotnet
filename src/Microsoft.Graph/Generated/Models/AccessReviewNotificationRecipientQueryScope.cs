@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AccessReviewNotificationRecipientQueryScope : AccessReviewNotificationRecipientScope, IParsable {
+    public class AccessReviewNotificationRecipientQueryScope : AccessReviewNotificationRecipientScope, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Represents the query for who the recipients are. For example, /groups/{group id}/members for group members and /users/{user id} for a specific user.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -51,6 +59,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new AccessReviewNotificationRecipientQueryScope and sets the default values.
         /// </summary>
         public AccessReviewNotificationRecipientQueryScope() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.accessReviewNotificationRecipientQueryScope";
         }
         /// <summary>
@@ -81,6 +91,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("query", Query);
             writer.WriteStringValue("queryRoot", QueryRoot);
             writer.WriteStringValue("queryType", QueryType);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

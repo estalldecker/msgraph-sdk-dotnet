@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,7 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// Devices that are managed or pre-enrolled through Intune
     /// </summary>
-    public class ManagedDevice : Entity, IParsable {
+    public class ManagedDevice : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>The code that allows the Activation Lock on managed device to be bypassed. Default, is Null (Non-Default property) for this property when returned as part of managedDevice entity in LIST call. Individual GET call with select query options is needed to retrieve actual values. Supports: $select. $Search is not supported. Read-only. This property is read-only.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -22,6 +23,11 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("activationLockBypassCode", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Android security patch level. This property is read-only.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -55,6 +61,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("azureADRegistered"); }
             set { BackingStore?.Set("azureADRegistered", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The DateTime when device compliance grace period expires. This property is read-only.</summary>
         public DateTimeOffset? ComplianceGracePeriodExpirationDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("complianceGracePeriodExpirationDateTime"); }
@@ -609,6 +617,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new managedDevice and sets the default values.
+        /// </summary>
+        public ManagedDevice() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -701,6 +716,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("notes", Notes);
             writer.WriteEnumValue<ManagedDevicePartnerReportedHealthState>("partnerReportedThreatState", PartnerReportedThreatState);
             writer.WriteCollectionOfObjectValues<User>("users", Users);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

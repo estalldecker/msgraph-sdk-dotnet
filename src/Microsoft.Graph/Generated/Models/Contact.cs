@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Contact : OutlookItem, IParsable {
+    public class Contact : OutlookItem, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The name of the contact&apos;s assistant.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("assistantName", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The contact&apos;s birthday. The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z</summary>
         public DateTimeOffset? Birthday {
             get { return BackingStore?.Get<DateTimeOffset?>("birthday"); }
@@ -518,6 +526,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Contact and sets the default values.
         /// </summary>
         public Contact() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.contact";
         }
         /// <summary>
@@ -616,6 +626,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("yomiCompanyName", YomiCompanyName);
             writer.WriteStringValue("yomiGivenName", YomiGivenName);
             writer.WriteStringValue("yomiSurname", YomiSurname);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

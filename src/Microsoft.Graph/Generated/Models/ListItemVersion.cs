@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ListItemVersion : BaseItemVersion, IParsable {
+    public class ListItemVersion : BaseItemVersion, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>A collection of the fields and values for this version of the list item.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -23,6 +31,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new ListItemVersion and sets the default values.
         /// </summary>
         public ListItemVersion() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.listItemVersion";
         }
         /// <summary>
@@ -53,6 +63,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteObjectValue<FieldValueSet>("fields", Fields);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

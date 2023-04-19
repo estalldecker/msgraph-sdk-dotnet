@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class WorkbookTableRow : Entity, IParsable {
+    public class WorkbookTableRow : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Returns the index number of the row within the rows collection of the table. Zero-indexed. Read-only.</summary>
         public int? Index {
             get { return BackingStore?.Get<int?>("index"); }
@@ -24,6 +32,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("values", value); }
         }
 #endif
+        /// <summary>
+        /// Instantiates a new workbookTableRow and sets the default values.
+        /// </summary>
+        public WorkbookTableRow() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -50,6 +65,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteIntValue("index", Index);
             writer.WriteObjectValue<Json>("values", Values);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

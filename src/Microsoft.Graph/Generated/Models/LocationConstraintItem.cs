@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class LocationConstraintItem : Location, IParsable {
+    public class LocationConstraintItem : Location, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>If set to true and the specified resource is busy, findMeetingTimes looks for another resource that is free. If set to false and the specified resource is busy, findMeetingTimes returns the resource best ranked in the user&apos;s cache without checking if it&apos;s free. Default is true.</summary>
         public bool? ResolveAvailability {
             get { return BackingStore?.Get<bool?>("resolveAvailability"); }
@@ -14,6 +22,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new LocationConstraintItem and sets the default values.
         /// </summary>
         public LocationConstraintItem() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.locationConstraintItem";
         }
         /// <summary>
@@ -40,6 +50,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteBoolValue("resolveAvailability", ResolveAvailability);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

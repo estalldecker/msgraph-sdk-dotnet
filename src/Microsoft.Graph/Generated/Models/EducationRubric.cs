@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class EducationRubric : Entity, IParsable {
+    public class EducationRubric : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The user who created this resource.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -114,6 +122,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new educationRubric and sets the default values.
+        /// </summary>
+        public EducationRubric() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -149,6 +164,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteObjectValue<EducationAssignmentGradeType>("grading", Grading);
             writer.WriteCollectionOfObjectValues<RubricLevel>("levels", Levels);
             writer.WriteCollectionOfObjectValues<RubricQuality>("qualities", Qualities);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Notebook : OnenoteEntityHierarchyModel, IParsable {
+    public class Notebook : OnenoteEntityHierarchyModel, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether this is the user&apos;s default notebook. Read-only.</summary>
         public bool? IsDefault {
             get { return BackingStore?.Get<bool?>("isDefault"); }
@@ -94,6 +102,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Notebook and sets the default values.
         /// </summary>
         public Notebook() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.notebook";
         }
         /// <summary>
@@ -134,6 +144,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<OnenoteSection>("sections", Sections);
             writer.WriteStringValue("sectionsUrl", SectionsUrl);
             writer.WriteEnumValue<OnenoteUserRole>("userRole", UserRole);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

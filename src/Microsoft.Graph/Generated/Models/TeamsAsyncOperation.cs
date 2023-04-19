@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class TeamsAsyncOperation : Entity, IParsable {
+    public class TeamsAsyncOperation : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Number of times the operation was attempted before being marked successful or failed.</summary>
         public int? AttemptsCount {
             get { return BackingStore?.Get<int?>("attemptsCount"); }
             set { BackingStore?.Set("attemptsCount", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Time when the operation was created.</summary>
         public DateTimeOffset? CreatedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("createdDateTime"); }
@@ -73,6 +81,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new teamsAsyncOperation and sets the default values.
+        /// </summary>
+        public TeamsAsyncOperation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -110,6 +125,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<TeamsAsyncOperationStatus>("status", Status);
             writer.WriteStringValue("targetResourceId", TargetResourceId);
             writer.WriteStringValue("targetResourceLocation", TargetResourceLocation);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

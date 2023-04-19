@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class DeviceEnrollmentWindowsHelloForBusinessConfiguration : DeviceEnrollmentConfiguration, IParsable {
+    public class DeviceEnrollmentWindowsHelloForBusinessConfiguration : DeviceEnrollmentConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Possible values of a property</summary>
         public Enablement? EnhancedBiometricsState {
             get { return BackingStore?.Get<Enablement?>("enhancedBiometricsState"); }
@@ -69,6 +77,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new DeviceEnrollmentWindowsHelloForBusinessConfiguration and sets the default values.
         /// </summary>
         public DeviceEnrollmentWindowsHelloForBusinessConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.deviceEnrollmentWindowsHelloForBusinessConfiguration";
         }
         /// <summary>
@@ -117,6 +127,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("securityDeviceRequired", SecurityDeviceRequired);
             writer.WriteEnumValue<Enablement>("state", State);
             writer.WriteBoolValue("unlockWithBiometricsEnabled", UnlockWithBiometricsEnabled);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

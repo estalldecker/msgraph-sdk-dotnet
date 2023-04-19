@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class PhoneAuthenticationMethod : AuthenticationMethod, IParsable {
+    public class PhoneAuthenticationMethod : AuthenticationMethod, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The phone number to text or call for authentication. Phone numbers use the format +{country code} {number}x{extension}, with extension optional. For example, +1 5555551234 or +1 5555551234x123 are valid. Numbers are rejected when creating or updating if they do not match the required format.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -33,6 +41,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new PhoneAuthenticationMethod and sets the default values.
         /// </summary>
         public PhoneAuthenticationMethod() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.phoneAuthenticationMethod";
         }
         /// <summary>
@@ -63,6 +73,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("phoneNumber", PhoneNumber);
             writer.WriteEnumValue<AuthenticationPhoneType>("phoneType", PhoneType);
             writer.WriteEnumValue<AuthenticationMethodSignInState>("smsSignInState", SmsSignInState);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

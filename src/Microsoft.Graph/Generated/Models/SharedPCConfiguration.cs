@@ -1,11 +1,12 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using Microsoft.Kiota.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class SharedPCConfiguration : DeviceConfiguration, IParsable {
+    public class SharedPCConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Specifies how accounts are managed on a shared PC. Only applies when disableAccountManager is false.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -20,6 +21,11 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("accountManagerPolicy", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Type of accounts that are allowed to share the PC.</summary>
         public SharedPCAllowedAccountType? AllowedAccounts {
             get { return BackingStore?.Get<SharedPCAllowedAccountType?>("allowedAccounts"); }
@@ -30,6 +36,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("allowLocalStorage"); }
             set { BackingStore?.Set("allowLocalStorage", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Disables the account manager for shared PC mode.</summary>
         public bool? DisableAccountManager {
             get { return BackingStore?.Get<bool?>("disableAccountManager"); }
@@ -97,6 +105,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new SharedPCConfiguration and sets the default values.
         /// </summary>
         public SharedPCConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.sharedPCConfiguration";
         }
         /// <summary>
@@ -145,6 +155,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("kioskAppDisplayName", KioskAppDisplayName);
             writer.WriteStringValue("kioskAppUserModelId", KioskAppUserModelId);
             writer.WriteTimeValue("maintenanceStartTime", MaintenanceStartTime);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,14 +1,20 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Device : DirectoryObject, IParsable {
+    public class Device : DirectoryObject, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>true if the account is enabled; otherwise, false. Required. Default is true.  Supports $filter (eq, ne, not, in). Only callers in Global Administrator and Cloud Device Administrator roles can set this property.</summary>
         public bool? AccountEnabled {
             get { return BackingStore?.Get<bool?>("accountEnabled"); }
             set { BackingStore?.Set("accountEnabled", value); }
+        }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
         }
         /// <summary>For internal use only. Not nullable. Supports $filter (eq, not, ge, le).</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
@@ -29,6 +35,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<DateTimeOffset?>("approximateLastSignInDateTime"); }
             set { BackingStore?.Set("approximateLastSignInDateTime", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The timestamp when the device is no longer deemed compliant. The timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only.</summary>
         public DateTimeOffset? ComplianceExpirationDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("complianceExpirationDateTime"); }
@@ -273,6 +281,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new device and sets the default values.
         /// </summary>
         public Device() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.device";
         }
         /// <summary>
@@ -345,6 +355,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfPrimitiveValues<string>("systemLabels", SystemLabels);
             writer.WriteCollectionOfObjectValues<DirectoryObject>("transitiveMemberOf", TransitiveMemberOf);
             writer.WriteStringValue("trustType", TrustType);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

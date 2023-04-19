@@ -1,15 +1,26 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ManagedApp : MobileApp, IParsable {
+    /// <summary>
+    /// Abstract class that contains properties and inherited properties for apps that you can manage with an Intune app protection policy.
+    /// </summary>
+    public class ManagedApp : MobileApp, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>A managed (MAM) application&apos;s availability.</summary>
         public ManagedAppAvailability? AppAvailability {
             get { return BackingStore?.Get<ManagedAppAvailability?>("appAvailability"); }
             set { BackingStore?.Set("appAvailability", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The Application&apos;s version.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -25,9 +36,11 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
-        /// Instantiates a new ManagedApp and sets the default values.
+        /// Instantiates a new managedApp and sets the default values.
         /// </summary>
         public ManagedApp() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.managedApp";
         }
         /// <summary>
@@ -64,6 +77,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteEnumValue<ManagedAppAvailability>("appAvailability", AppAvailability);
             writer.WriteStringValue("version", Version);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

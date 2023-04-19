@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.ExternalConnectors {
-    public class ExternalItem : Entity, IParsable {
+    public class ExternalItem : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>An array of access control entries. Each entry specifies the access granted to a user or group. Required.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +20,13 @@ namespace Microsoft.Graph.Models.ExternalConnectors {
             set { BackingStore?.Set("acl", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>A plain-text  representation of the contents of the item. The text in this property is full-text indexed. Optional.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -48,6 +56,13 @@ namespace Microsoft.Graph.Models.ExternalConnectors {
         }
 #endif
         /// <summary>
+        /// Instantiates a new externalItem and sets the default values.
+        /// </summary>
+        public ExternalItem() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -75,6 +90,7 @@ namespace Microsoft.Graph.Models.ExternalConnectors {
             writer.WriteCollectionOfObjectValues<Microsoft.Graph.Models.ExternalConnectors.Acl>("acl", Acl);
             writer.WriteObjectValue<ExternalItemContent>("content", Content);
             writer.WriteObjectValue<Microsoft.Graph.Models.ExternalConnectors.Properties>("properties", Properties);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

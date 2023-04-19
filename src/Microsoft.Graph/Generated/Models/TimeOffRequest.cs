@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class TimeOffRequest : ScheduleChangeRequest, IParsable {
+    public class TimeOffRequest : ScheduleChangeRequest, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z</summary>
         public DateTimeOffset? EndDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("endDateTime"); }
@@ -33,6 +41,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new TimeOffRequest and sets the default values.
         /// </summary>
         public TimeOffRequest() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.timeOffRequest";
         }
         /// <summary>
@@ -63,6 +73,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteDateTimeOffsetValue("endDateTime", EndDateTime);
             writer.WriteDateTimeOffsetValue("startDateTime", StartDateTime);
             writer.WriteStringValue("timeOffReasonId", TimeOffReasonId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

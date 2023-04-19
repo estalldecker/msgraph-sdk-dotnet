@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Windows10SecureAssessmentConfiguration : DeviceConfiguration, IParsable {
+    public class Windows10SecureAssessmentConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Indicates whether or not to allow the app from printing during the test.</summary>
         public bool? AllowPrinting {
             get { return BackingStore?.Get<bool?>("allowPrinting"); }
@@ -20,6 +26,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("allowTextSuggestion"); }
             set { BackingStore?.Set("allowTextSuggestion", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The account used to configure the Windows device for taking the test. The user can be a domain account (domain/user), an AAD account (username@tenant.com) or a local account (username).</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -52,6 +60,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Windows10SecureAssessmentConfiguration and sets the default values.
         /// </summary>
         public Windows10SecureAssessmentConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windows10SecureAssessmentConfiguration";
         }
         /// <summary>
@@ -86,6 +96,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("allowTextSuggestion", AllowTextSuggestion);
             writer.WriteStringValue("configurationAccount", ConfigurationAccount);
             writer.WriteStringValue("launchUri", LaunchUri);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

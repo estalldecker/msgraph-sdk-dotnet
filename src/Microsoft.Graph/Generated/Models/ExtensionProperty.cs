@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ExtensionProperty : DirectoryObject, IParsable {
+    public class ExtensionProperty : DirectoryObject, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Display name of the application object on which this extension property is defined. Read-only.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("appDisplayName", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Specifies the data type of the value the extension property can hold. Following values are supported. Not nullable. Binary - 256 bytes maximumBooleanDateTime - Must be specified in ISO 8601 format. Will be stored in UTC.Integer - 32-bit value.LargeInteger - 64-bit value.String - 256 characters maximum</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -70,6 +78,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new extensionProperty and sets the default values.
         /// </summary>
         public ExtensionProperty() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.extensionProperty";
         }
         /// <summary>
@@ -104,6 +114,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("isSyncedFromOnPremises", IsSyncedFromOnPremises);
             writer.WriteStringValue("name", Name);
             writer.WriteCollectionOfPrimitiveValues<string>("targetObjects", TargetObjects);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

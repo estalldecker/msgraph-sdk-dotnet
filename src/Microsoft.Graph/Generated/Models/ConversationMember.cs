@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ConversationMember : Entity, IParsable {
+    public class ConversationMember : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The display name of the user.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -37,6 +45,13 @@ namespace Microsoft.Graph.Models {
         public DateTimeOffset? VisibleHistoryStartDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("visibleHistoryStartDateTime"); }
             set { BackingStore?.Set("visibleHistoryStartDateTime", value); }
+        }
+        /// <summary>
+        /// Instantiates a new conversationMember and sets the default values.
+        /// </summary>
+        public ConversationMember() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -75,6 +90,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("displayName", DisplayName);
             writer.WriteCollectionOfPrimitiveValues<string>("roles", Roles);
             writer.WriteDateTimeOffsetValue("visibleHistoryStartDateTime", VisibleHistoryStartDateTime);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class MacOsLobAppAssignmentSettings : MobileAppAssignmentSettings, IParsable {
+    public class MacOsLobAppAssignmentSettings : MobileAppAssignmentSettings, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates that the app will not be uninstalled when the device is removed from Intune.</summary>
         public bool? UninstallOnDeviceRemoval {
             get { return BackingStore?.Get<bool?>("uninstallOnDeviceRemoval"); }
@@ -14,6 +22,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new MacOsLobAppAssignmentSettings and sets the default values.
         /// </summary>
         public MacOsLobAppAssignmentSettings() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.macOsLobAppAssignmentSettings";
         }
         /// <summary>
@@ -40,6 +50,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteBoolValue("uninstallOnDeviceRemoval", UninstallOnDeviceRemoval);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

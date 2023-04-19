@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ServicePrincipalRiskDetection : Entity, IParsable {
+    public class ServicePrincipalRiskDetection : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Indicates the activity type the detected risk is linked to.  The possible values are: signin, servicePrincipal. Note that you must use the Prefer: include-unknown-enum-members request header to get the following value(s) in this evolvable enum: servicePrincipal.</summary>
         public ActivityType? Activity {
             get { return BackingStore?.Get<ActivityType?>("activity"); }
@@ -14,6 +15,11 @@ namespace Microsoft.Graph.Models {
         public DateTimeOffset? ActivityDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("activityDateTime"); }
             set { BackingStore?.Set("activityDateTime", value); }
+        }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
         }
         /// <summary>Additional information associated with the risk detection. This string value is represented as a JSON object with the quotations escaped.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
@@ -43,6 +49,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("appId", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Correlation ID of the sign-in activity associated with the risk detection. This property is null if the risk detection is not associated with a sign-in activity.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -205,6 +213,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("tokenIssuerType", value); }
         }
         /// <summary>
+        /// Instantiates a new servicePrincipalRiskDetection and sets the default values.
+        /// </summary>
+        public ServicePrincipalRiskDetection() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -266,6 +281,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("servicePrincipalId", ServicePrincipalId);
             writer.WriteStringValue("source", Source);
             writer.WriteEnumValue<TokenIssuerType>("tokenIssuerType", TokenIssuerType);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

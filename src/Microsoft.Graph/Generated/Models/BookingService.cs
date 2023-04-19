@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,12 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// Represents a particular service offered by a booking business.
     /// </summary>
-    public class BookingService : Entity, IParsable {
+    public class BookingService : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Additional information that is sent to the customer when an appointment is confirmed.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -22,6 +28,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("additionalInformation", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Contains the set of custom questions associated with a particular service.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -213,6 +221,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new bookingService and sets the default values.
+        /// </summary>
+        public BookingService() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -275,6 +290,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteObjectValue<BookingSchedulingPolicy>("schedulingPolicy", SchedulingPolicy);
             writer.WriteBoolValue("smsNotificationsEnabled", SmsNotificationsEnabled);
             writer.WriteCollectionOfPrimitiveValues<string>("staffMemberIds", StaffMemberIds);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

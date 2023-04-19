@@ -1,21 +1,29 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using Microsoft.Kiota.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class EducationAssignmentDefaults : Entity, IParsable {
+    public class EducationAssignmentDefaults : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Class-level default behavior for handling students who are added after the assignment is published. Possible values are: none, assignIfOpen.</summary>
         public EducationAddedStudentAction? AddedStudentAction {
             get { return BackingStore?.Get<EducationAddedStudentAction?>("addedStudentAction"); }
             set { BackingStore?.Set("addedStudentAction", value); }
+        }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
         }
         /// <summary>Optional field to control adding assignments to students&apos; and teachers&apos; calendars when the assignment is published. The possible values are: none, studentsAndPublisher, studentsAndTeamOwners, unknownFutureValue, and studentsOnly. Note that you must use the Prefer: include-unknown-enum-members request header to get the following value(s) in this evolvable enum: studentsOnly. The default value is none.</summary>
         public EducationAddToCalendarOptions? AddToCalendarAction {
             get { return BackingStore?.Get<EducationAddToCalendarOptions?>("addToCalendarAction"); }
             set { BackingStore?.Set("addToCalendarAction", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Class-level default value for due time field. Default value is 23:59:00.</summary>
         public Time? DueTime {
             get { return BackingStore?.Get<Time?>("dueTime"); }
@@ -35,6 +43,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("notificationChannelUrl", value); }
         }
 #endif
+        /// <summary>
+        /// Instantiates a new educationAssignmentDefaults and sets the default values.
+        /// </summary>
+        public EducationAssignmentDefaults() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -65,6 +80,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<EducationAddToCalendarOptions>("addToCalendarAction", AddToCalendarAction);
             writer.WriteTimeValue("dueTime", DueTime);
             writer.WriteStringValue("notificationChannelUrl", NotificationChannelUrl);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.Security {
-    public class EdiscoveryReviewTag : Tag, IParsable {
+    public class EdiscoveryReviewTag : Tag, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether a single or multiple child tags can be associated with a document. Possible values are: One, Many.  This value controls whether the UX presents the tags as checkboxes or a radio button group.</summary>
         public Microsoft.Graph.Models.Security.ChildSelectability? ChildSelectability {
             get { return BackingStore?.Get<Microsoft.Graph.Models.Security.ChildSelectability?>("childSelectability"); }
@@ -42,6 +50,8 @@ namespace Microsoft.Graph.Models.Security {
         /// Instantiates a new EdiscoveryReviewTag and sets the default values.
         /// </summary>
         public EdiscoveryReviewTag() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.security.ediscoveryReviewTag";
         }
         /// <summary>
@@ -72,6 +82,7 @@ namespace Microsoft.Graph.Models.Security {
             writer.WriteEnumValue<ChildSelectability>("childSelectability", ChildSelectability);
             writer.WriteCollectionOfObjectValues<EdiscoveryReviewTag>("childTags", ChildTags);
             writer.WriteObjectValue<EdiscoveryReviewTag>("parent", Parent);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

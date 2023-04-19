@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,14 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// Device Compilance Policy and Configuration for a Setting State summary
     /// </summary>
-    public class SettingStateDeviceSummary : Entity, IParsable {
+    public class SettingStateDeviceSummary : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Device Compliant count for the setting</summary>
         public int? CompliantDeviceCount {
             get { return BackingStore?.Get<int?>("compliantDeviceCount"); }
@@ -72,6 +80,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("unknownDeviceCount", value); }
         }
         /// <summary>
+        /// Instantiates a new settingStateDeviceSummary and sets the default values.
+        /// </summary>
+        public SettingStateDeviceSummary() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -111,6 +126,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteIntValue("remediatedDeviceCount", RemediatedDeviceCount);
             writer.WriteStringValue("settingName", SettingName);
             writer.WriteIntValue("unknownDeviceCount", UnknownDeviceCount);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

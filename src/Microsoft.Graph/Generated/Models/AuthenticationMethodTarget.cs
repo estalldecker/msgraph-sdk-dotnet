@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AuthenticationMethodTarget : Entity, IParsable {
+    public class AuthenticationMethodTarget : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Determines if the user is enforced to register the authentication method.</summary>
         public bool? IsRegistrationRequired {
             get { return BackingStore?.Get<bool?>("isRegistrationRequired"); }
@@ -14,6 +22,13 @@ namespace Microsoft.Graph.Models {
         public AuthenticationMethodTargetType? TargetType {
             get { return BackingStore?.Get<AuthenticationMethodTargetType?>("targetType"); }
             set { BackingStore?.Set("targetType", value); }
+        }
+        /// <summary>
+        /// Instantiates a new authenticationMethodTarget and sets the default values.
+        /// </summary>
+        public AuthenticationMethodTarget() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -46,6 +61,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteBoolValue("isRegistrationRequired", IsRegistrationRequired);
             writer.WriteEnumValue<AuthenticationMethodTargetType>("targetType", TargetType);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

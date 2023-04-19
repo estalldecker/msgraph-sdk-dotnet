@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AuthoredNote : Entity, IParsable {
+    public class AuthoredNote : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Identity information about the note&apos;s author.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("author", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The content of the note.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -37,6 +45,13 @@ namespace Microsoft.Graph.Models {
         public DateTimeOffset? CreatedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("createdDateTime"); }
             set { BackingStore?.Set("createdDateTime", value); }
+        }
+        /// <summary>
+        /// Instantiates a new AuthoredNote and sets the default values.
+        /// </summary>
+        public AuthoredNote() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -66,6 +81,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteObjectValue<Identity>("author", Author);
             writer.WriteObjectValue<ItemBody>("content", Content);
             writer.WriteDateTimeOffsetValue("createdDateTime", CreatedDateTime);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

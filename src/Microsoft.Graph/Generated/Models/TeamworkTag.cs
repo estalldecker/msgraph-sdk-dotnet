@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class TeamworkTag : Entity, IParsable {
+    public class TeamworkTag : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The description of the tag as it will appear to the user in Microsoft Teams. A teamworkTag can&apos;t have more than 200 teamworkTagMembers.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -72,6 +80,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new teamworkTag and sets the default values.
+        /// </summary>
+        public TeamworkTag() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -105,6 +120,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<TeamworkTagMember>("members", Members);
             writer.WriteEnumValue<TeamworkTagType>("tagType", TagType);
             writer.WriteStringValue("teamId", TeamId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

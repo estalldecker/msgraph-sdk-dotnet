@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,12 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// This is the base class for Compliance policy. Compliance policies are platform specific and individual per-platform compliance policies inherit from here. 
     /// </summary>
-    public class DeviceCompliancePolicy : Entity, IParsable {
+    public class DeviceCompliancePolicy : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The collection of assignments for this compliance policy.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -22,6 +28,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("assignments", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>DateTime the object was created.</summary>
         public DateTimeOffset? CreatedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("createdDateTime"); }
@@ -150,6 +158,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("version", value); }
         }
         /// <summary>
+        /// Instantiates a new deviceCompliancePolicy and sets the default values.
+        /// </summary>
+        public DeviceCompliancePolicy() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -206,6 +221,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<DeviceComplianceUserStatus>("userStatuses", UserStatuses);
             writer.WriteObjectValue<DeviceComplianceUserOverview>("userStatusOverview", UserStatusOverview);
             writer.WriteIntValue("version", Version);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

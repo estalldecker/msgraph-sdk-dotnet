@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class CallStartedEventMessageDetail : EventMessageDetail, IParsable {
+    public class CallStartedEventMessageDetail : EventMessageDetail, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Represents the call event type. Possible values are: call, meeting, screenShare, unknownFutureValue.</summary>
         public TeamworkCallEventType? CallEventType {
             get { return BackingStore?.Get<TeamworkCallEventType?>("callEventType"); }
@@ -42,6 +50,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new CallStartedEventMessageDetail and sets the default values.
         /// </summary>
         public CallStartedEventMessageDetail() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.callStartedEventMessageDetail";
         }
         /// <summary>
@@ -72,6 +82,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<TeamworkCallEventType>("callEventType", CallEventType);
             writer.WriteStringValue("callId", CallId);
             writer.WriteObjectValue<IdentitySet>("initiator", Initiator);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

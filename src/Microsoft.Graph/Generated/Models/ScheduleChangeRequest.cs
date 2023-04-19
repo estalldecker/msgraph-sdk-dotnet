@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ScheduleChangeRequest : ChangeTrackedEntity, IParsable {
+    public class ScheduleChangeRequest : ChangeTrackedEntity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The assignedTo property</summary>
         public ScheduleChangeRequestActor? AssignedTo {
             get { return BackingStore?.Get<ScheduleChangeRequestActor?>("assignedTo"); }
             set { BackingStore?.Set("assignedTo", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The managerActionDateTime property</summary>
         public DateTimeOffset? ManagerActionDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("managerActionDateTime"); }
@@ -85,6 +93,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new ScheduleChangeRequest and sets the default values.
         /// </summary>
         public ScheduleChangeRequest() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.scheduleChangeRequest";
         }
         /// <summary>
@@ -128,6 +138,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("managerActionMessage", ManagerActionMessage);
             writer.WriteStringValue("senderMessage", SenderMessage);
             writer.WriteEnumValue<ScheduleChangeState>("state", State);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

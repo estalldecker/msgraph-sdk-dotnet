@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,14 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// The type for deployment of groups or apps.
     /// </summary>
-    public class TargetedManagedAppPolicyAssignment : Entity, IParsable {
+    public class TargetedManagedAppPolicyAssignment : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Identifier for deployment to a group or app</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -22,6 +30,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("target", value); }
         }
 #endif
+        /// <summary>
+        /// Instantiates a new targetedManagedAppPolicyAssignment and sets the default values.
+        /// </summary>
+        public TargetedManagedAppPolicyAssignment() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
@@ -46,6 +61,7 @@ namespace Microsoft.Graph.Models {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             base.Serialize(writer);
             writer.WriteObjectValue<DeviceAndAppManagementAssignmentTarget>("target", Target);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

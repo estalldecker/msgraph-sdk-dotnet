@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class UserActivity : Entity, IParsable {
+    public class UserActivity : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Required. URL used to launch the activity in the best native experience represented by the appId. Might launch a web-based app if no native app exists.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -33,6 +34,11 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("activitySourceHost", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Required. The unique activity ID in the context of the app - supplied by caller and immutable thereafter.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -61,6 +67,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("appDisplayName", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Optional. A custom piece of data - JSON-LD extensible description of content according to schema.org syntax.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -166,6 +174,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new userActivity and sets the default values.
+        /// </summary>
+        public UserActivity() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -215,6 +230,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<Status>("status", Status);
             writer.WriteStringValue("userTimezone", UserTimezone);
             writer.WriteObjectValue<VisualInfo>("visualElements", VisualElements);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

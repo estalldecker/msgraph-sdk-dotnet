@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class FileAssessmentRequest : ThreatAssessmentRequest, IParsable {
+    public class FileAssessmentRequest : ThreatAssessmentRequest, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Base64 encoded file content. The file content cannot fetch back because it isn&apos;t stored.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -37,6 +45,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new FileAssessmentRequest and sets the default values.
         /// </summary>
         public FileAssessmentRequest() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.fileAssessmentRequest";
         }
         /// <summary>
@@ -65,6 +75,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteStringValue("contentData", ContentData);
             writer.WriteStringValue("fileName", FileName);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class User : DirectoryObject, IParsable {
+    public class User : DirectoryObject, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>A freeform text entry field for the user to describe themselves. Returned only on $select.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -38,6 +39,11 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("activities", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Sets the age group of the user. Allowed values: null, Minor, NotAdult and Adult. Refer to the legal age group property definitions for further information. Returned only on $select. Supports $filter (eq, ne, not, and in).</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -136,6 +142,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("authorizationInfo", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The birthday of the user. The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Returned only on $select.</summary>
         public DateTimeOffset? Birthday {
             get { return BackingStore?.Get<DateTimeOffset?>("birthday"); }
@@ -1400,7 +1408,7 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("showInAddressList"); }
             set { BackingStore?.Set("showInAddressList", value); }
         }
-        /// <summary>Get the last signed-in date and request ID of the sign-in for a given user. Read-only.Returned only on $select. Supports $filter (eq, ne, not, ge, le) but not with any other filterable properties. Note: Details for this property require an Azure AD Premium P1/P2 license and the AuditLog.Read.All permission.When you specify $select=signInActivity or $filter=signInActivity while listing users, the maximum page size is 120 users. Requests with $top set higher than 120 will fail. Requests with $top set higher than 120 will fail.This property is not returned for a user who has never signed in or last signed in before April 2020.</summary>
+        /// <summary>Get the last signed-in date and request ID of the sign-in for a given user. Read-only.Returned only on $select. Supports $filter (eq, ne, not, ge, le) but not with any other filterable properties. Note: Details for this property require an Azure AD Premium P1/P2 license and the AuditLog.Read.All permission.When you specify $select=signInActivity or $filter=signInActivity while listing users, the maximum page size is 120 users. Requests with $top set higher than 120 will return pages with up to 120 users. This property is not returned for a user who has never signed in or last signed in before April 2020.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public Microsoft.Graph.Models.SignInActivity? SignInActivity {
@@ -1563,6 +1571,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new User and sets the default values.
         /// </summary>
         public User() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.user";
         }
         /// <summary>
@@ -1827,6 +1837,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("usageLocation", UsageLocation);
             writer.WriteStringValue("userPrincipalName", UserPrincipalName);
             writer.WriteStringValue("userType", UserType);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

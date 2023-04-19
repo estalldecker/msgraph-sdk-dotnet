@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class CommsOperation : Entity, IParsable {
+    public class CommsOperation : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Unique Client Context string. Max limit is 256 chars.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -37,6 +45,13 @@ namespace Microsoft.Graph.Models {
         public OperationStatus? Status {
             get { return BackingStore?.Get<OperationStatus?>("status"); }
             set { BackingStore?.Set("status", value); }
+        }
+        /// <summary>
+        /// Instantiates a new commsOperation and sets the default values.
+        /// </summary>
+        public CommsOperation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -80,6 +95,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("clientContext", ClientContext);
             writer.WriteObjectValue<Microsoft.Graph.Models.ResultInfo>("resultInfo", ResultInfo);
             writer.WriteEnumValue<OperationStatus>("status", Status);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

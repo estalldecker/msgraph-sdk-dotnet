@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class CustomTimeZone : TimeZoneBase, IParsable {
+    public class CustomTimeZone : TimeZoneBase, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The time offset of the time zone from Coordinated Universal Time (UTC). This value is in minutes. Time zones that are ahead of UTC have a positive offset; time zones that are behind UTC have a negative offset.</summary>
         public int? Bias {
             get { return BackingStore?.Get<int?>("bias"); }
@@ -42,6 +50,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new CustomTimeZone and sets the default values.
         /// </summary>
         public CustomTimeZone() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.customTimeZone";
         }
         /// <summary>
@@ -72,6 +82,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteIntValue("bias", Bias);
             writer.WriteObjectValue<DaylightTimeZoneOffset>("daylightOffset", DaylightOffset);
             writer.WriteObjectValue<StandardTimeZoneOffset>("standardOffset", StandardOffset);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

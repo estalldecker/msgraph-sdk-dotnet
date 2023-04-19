@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,7 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// Describes the resourceOperation resource (entity) of the Microsoft Graph API (REST), which supports Intune workflows related to role-based access control (RBAC).
     /// </summary>
-    public class ResourceOperation : Entity, IParsable {
+    public class ResourceOperation : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Type of action this operation is going to perform. The actionName should be concise and limited to as few words as possible.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -22,6 +23,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("actionName", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Description of the resource operation. The description is used in mouse-over text for the operation when shown in the Azure Portal.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -51,6 +59,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new resourceOperation and sets the default values.
+        /// </summary>
+        public ResourceOperation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -78,6 +93,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("actionName", ActionName);
             writer.WriteStringValue("description", Description);
             writer.WriteStringValue("resourceName", ResourceName);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

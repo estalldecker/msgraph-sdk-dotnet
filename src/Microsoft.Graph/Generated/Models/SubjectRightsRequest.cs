@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class SubjectRightsRequest : Entity, IParsable {
+    public class SubjectRightsRequest : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Identity that the request is assigned to.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("assignedTo", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The date and time when the request was closed. The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z.</summary>
         public DateTimeOffset? ClosedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("closedDateTime"); }
@@ -209,6 +217,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("type", value); }
         }
         /// <summary>
+        /// Instantiates a new SubjectRightsRequest and sets the default values.
+        /// </summary>
+        public SubjectRightsRequest() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -268,6 +283,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<SubjectRightsRequestStatus>("status", Status);
             writer.WriteObjectValue<Microsoft.Graph.Models.Team>("team", Team);
             writer.WriteEnumValue<SubjectRightsRequestType>("type", Type);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

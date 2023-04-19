@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class BookingCustomerInformation : BookingCustomerInformationBase, IParsable {
+    public class BookingCustomerInformation : BookingCustomerInformationBase, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The ID of the bookingCustomer for this appointment. If no ID is specified when an appointment is created, then a new bookingCustomer object is created. Once set, you should consider the customerId immutable.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -121,6 +129,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new BookingCustomerInformation and sets the default values.
         /// </summary>
         public BookingCustomerInformation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.bookingCustomerInformation";
         }
         /// <summary>
@@ -161,6 +171,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("notes", Notes);
             writer.WriteStringValue("phone", Phone);
             writer.WriteStringValue("timeZone", TimeZone);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,11 +1,12 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using Microsoft.Kiota.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class WindowsUpdateActiveHoursInstall : WindowsUpdateInstallScheduleType, IParsable {
+    public class WindowsUpdateActiveHoursInstall : WindowsUpdateInstallScheduleType, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>Active Hours End</summary>
         public Time? ActiveHoursEnd {
             get { return BackingStore?.Get<Time?>("activeHoursEnd"); }
@@ -16,10 +17,19 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<Time?>("activeHoursStart"); }
             set { BackingStore?.Set("activeHoursStart", value); }
         }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>
         /// Instantiates a new WindowsUpdateActiveHoursInstall and sets the default values.
         /// </summary>
         public WindowsUpdateActiveHoursInstall() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windowsUpdateActiveHoursInstall";
         }
         /// <summary>
@@ -48,6 +58,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteTimeValue("activeHoursEnd", ActiveHoursEnd);
             writer.WriteTimeValue("activeHoursStart", ActiveHoursStart);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

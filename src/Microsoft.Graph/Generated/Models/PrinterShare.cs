@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class PrinterShare : PrinterBase, IParsable {
+    public class PrinterShare : PrinterBase, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>If true, all users and groups will be granted access to this printer share. This supersedes the allow lists defined by the allowedUsers and allowedGroups navigation properties.</summary>
         public bool? AllowAllUsers {
             get { return BackingStore?.Get<bool?>("allowAllUsers"); }
@@ -38,6 +44,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("allowedUsers", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The DateTimeOffset when the printer share was created. Read-only.</summary>
         public DateTimeOffset? CreatedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("createdDateTime"); }
@@ -61,6 +69,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new printerShare and sets the default values.
         /// </summary>
         public PrinterShare() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.printerShare";
         }
         /// <summary>
@@ -95,6 +105,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<User>("allowedUsers", AllowedUsers);
             writer.WriteDateTimeOffsetValue("createdDateTime", CreatedDateTime);
             writer.WriteObjectValue<Microsoft.Graph.Models.Printer>("printer", Printer);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

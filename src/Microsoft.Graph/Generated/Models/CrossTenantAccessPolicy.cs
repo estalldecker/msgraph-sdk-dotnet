@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class CrossTenantAccessPolicy : PolicyBase, IParsable {
+    public class CrossTenantAccessPolicy : PolicyBase, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Used to specify which Microsoft clouds an organization would like to collaborate with. By default, this value is empty. Supported values for this field are: microsoftonline.com, microsoftonline.us, and partner.microsoftonline.cn.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("allowedCloudEndpoints", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Defines the default configuration for how your organization interacts with external Azure Active Directory organizations.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -51,6 +59,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new CrossTenantAccessPolicy and sets the default values.
         /// </summary>
         public CrossTenantAccessPolicy() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.crossTenantAccessPolicy";
         }
         /// <summary>
@@ -81,6 +91,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfPrimitiveValues<string>("allowedCloudEndpoints", AllowedCloudEndpoints);
             writer.WriteObjectValue<CrossTenantAccessPolicyConfigurationDefault>("default", Default);
             writer.WriteCollectionOfObjectValues<CrossTenantAccessPolicyConfigurationPartner>("partners", Partners);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

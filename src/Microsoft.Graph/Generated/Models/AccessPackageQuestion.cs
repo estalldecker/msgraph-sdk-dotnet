@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AccessPackageQuestion : Entity, IParsable {
+    public class AccessPackageQuestion : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Specifies whether the requestor is allowed to edit answers to questions for an assignment by posting an update to accessPackageAssignmentRequest.</summary>
         public bool? IsAnswerEditable {
             get { return BackingStore?.Get<bool?>("isAnswerEditable"); }
@@ -49,6 +57,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new accessPackageQuestion and sets the default values.
+        /// </summary>
+        public AccessPackageQuestion() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -85,6 +100,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<AccessPackageLocalizedText>("localizations", Localizations);
             writer.WriteIntValue("sequence", Sequence);
             writer.WriteStringValue("text", Text);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class WindowsHelloForBusinessAuthenticationMethod : AuthenticationMethod, IParsable {
+    public class WindowsHelloForBusinessAuthenticationMethod : AuthenticationMethod, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The date and time that this Windows Hello for Business key was registered.</summary>
         public DateTimeOffset? CreatedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("createdDateTime"); }
@@ -47,6 +55,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new WindowsHelloForBusinessAuthenticationMethod and sets the default values.
         /// </summary>
         public WindowsHelloForBusinessAuthenticationMethod() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windowsHelloForBusinessAuthenticationMethod";
         }
         /// <summary>
@@ -79,6 +89,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteObjectValue<Microsoft.Graph.Models.Device>("device", Device);
             writer.WriteStringValue("displayName", DisplayName);
             writer.WriteEnumValue<AuthenticationMethodKeyStrength>("keyStrength", KeyStrength);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

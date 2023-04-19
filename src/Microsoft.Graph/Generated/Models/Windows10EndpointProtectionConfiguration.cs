@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Windows10EndpointProtectionConfiguration : DeviceConfiguration, IParsable {
+    public class Windows10EndpointProtectionConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Allow persisting user generated data inside the App Guard Containter (favorites, cookies, web passwords, etc.)</summary>
         public bool? ApplicationGuardAllowPersistence {
             get { return BackingStore?.Get<bool?>("applicationGuardAllowPersistence"); }
@@ -60,6 +66,8 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<AppLockerApplicationControlType?>("appLockerApplicationControl"); }
             set { BackingStore?.Set("appLockerApplicationControl", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Allows the Admin to disable the warning prompt for other disk encryption on the user machines.</summary>
         public bool? BitLockerDisableWarningForOtherDiskEncryption {
             get { return BackingStore?.Get<bool?>("bitLockerDisableWarningForOtherDiskEncryption"); }
@@ -270,6 +278,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Windows10EndpointProtectionConfiguration and sets the default values.
         /// </summary>
         public Windows10EndpointProtectionConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windows10EndpointProtectionConfiguration";
         }
         /// <summary>
@@ -366,6 +376,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteObjectValue<WindowsFirewallNetworkProfile>("firewallProfilePublic", FirewallProfilePublic);
             writer.WriteBoolValue("smartScreenBlockOverrideForFiles", SmartScreenBlockOverrideForFiles);
             writer.WriteBoolValue("smartScreenEnableInShell", SmartScreenEnableInShell);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

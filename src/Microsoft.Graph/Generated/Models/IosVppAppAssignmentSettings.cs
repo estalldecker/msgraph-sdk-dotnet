@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class IosVppAppAssignmentSettings : MobileAppAssignmentSettings, IParsable {
+    public class IosVppAppAssignmentSettings : MobileAppAssignmentSettings, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Whether or not to use device licensing.</summary>
         public bool? UseDeviceLicensing {
             get { return BackingStore?.Get<bool?>("useDeviceLicensing"); }
@@ -28,6 +36,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new IosVppAppAssignmentSettings and sets the default values.
         /// </summary>
         public IosVppAppAssignmentSettings() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.iosVppAppAssignmentSettings";
         }
         /// <summary>
@@ -56,6 +66,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteBoolValue("useDeviceLicensing", UseDeviceLicensing);
             writer.WriteStringValue("vpnConfigurationId", VpnConfigurationId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

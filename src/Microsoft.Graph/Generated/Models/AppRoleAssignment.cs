@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AppRoleAssignment : DirectoryObject, IParsable {
+    public class AppRoleAssignment : DirectoryObject, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>The identifier (id) for the app role which is assigned to the principal. This app role must be exposed in the appRoles property on the resource application&apos;s service principal (resourceId). If the resource application has not declared any app roles, a default app role ID of 00000000-0000-0000-0000-000000000000 can be specified to signal that the principal is assigned to the resource app without any specific app roles. Required on create.</summary>
         public Guid? AppRoleId {
             get { return BackingStore?.Get<Guid?>("appRoleId"); }
             set { BackingStore?.Set("appRoleId", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The time when the app role assignment was created. The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only.</summary>
         public DateTimeOffset? CreatedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("createdDateTime"); }
@@ -71,6 +79,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new appRoleAssignment and sets the default values.
         /// </summary>
         public AppRoleAssignment() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.appRoleAssignment";
         }
         /// <summary>
@@ -109,6 +119,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("principalType", PrincipalType);
             writer.WriteStringValue("resourceDisplayName", ResourceDisplayName);
             writer.WriteGuidValue("resourceId", ResourceId);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class OnenoteSection : OnenoteEntityHierarchyModel, IParsable {
+    public class OnenoteSection : OnenoteEntityHierarchyModel, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether this is the user&apos;s default section. Read-only.</summary>
         public bool? IsDefault {
             get { return BackingStore?.Get<bool?>("isDefault"); }
@@ -84,6 +92,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new onenoteSection and sets the default values.
         /// </summary>
         public OnenoteSection() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.onenoteSection";
         }
         /// <summary>
@@ -120,6 +130,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("pagesUrl", PagesUrl);
             writer.WriteObjectValue<Notebook>("parentNotebook", ParentNotebook);
             writer.WriteObjectValue<SectionGroup>("parentSectionGroup", ParentSectionGroup);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

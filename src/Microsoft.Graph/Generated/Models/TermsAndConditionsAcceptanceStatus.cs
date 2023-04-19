@@ -1,4 +1,5 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,7 @@ namespace Microsoft.Graph.Models {
     /// <summary>
     /// A termsAndConditionsAcceptanceStatus entity represents the acceptance status of a given Terms and Conditions (T&amp;C) policy by a given user. Users must accept the most up-to-date version of the terms in order to retain access to the Company Portal.
     /// </summary>
-    public class TermsAndConditionsAcceptanceStatus : Entity, IParsable {
+    public class TermsAndConditionsAcceptanceStatus : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>DateTime when the terms were last accepted by the user.</summary>
         public DateTimeOffset? AcceptedDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("acceptedDateTime"); }
@@ -18,6 +19,13 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<int?>("acceptedVersion"); }
             set { BackingStore?.Set("acceptedVersion", value); }
         }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Navigation link to the terms and conditions that are assigned.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -61,6 +69,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new termsAndConditionsAcceptanceStatus and sets the default values.
+        /// </summary>
+        public TermsAndConditionsAcceptanceStatus() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -92,6 +107,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteObjectValue<Microsoft.Graph.Models.TermsAndConditions>("termsAndConditions", TermsAndConditions);
             writer.WriteStringValue("userDisplayName", UserDisplayName);
             writer.WriteStringValue("userPrincipalName", UserPrincipalName);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

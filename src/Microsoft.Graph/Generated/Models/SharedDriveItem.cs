@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class SharedDriveItem : BaseItem, IParsable {
+    public class SharedDriveItem : BaseItem, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Used to access the underlying driveItem</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -121,6 +129,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new SharedDriveItem and sets the default values.
         /// </summary>
         public SharedDriveItem() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.sharedDriveItem";
         }
         /// <summary>
@@ -161,6 +171,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteObjectValue<Microsoft.Graph.Models.Permission>("permission", Permission);
             writer.WriteObjectValue<Microsoft.Graph.Models.DriveItem>("root", Root);
             writer.WriteObjectValue<Microsoft.Graph.Models.Site>("site", Site);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

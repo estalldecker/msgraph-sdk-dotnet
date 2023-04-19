@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class SimulationAutomationRun : Entity, IParsable {
+    public class SimulationAutomationRun : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Date and time when the run ends in an attack simulation automation.</summary>
         public DateTimeOffset? EndDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("endDateTime"); }
@@ -33,6 +41,13 @@ namespace Microsoft.Graph.Models {
         public SimulationAutomationRunStatus? Status {
             get { return BackingStore?.Get<SimulationAutomationRunStatus?>("status"); }
             set { BackingStore?.Set("status", value); }
+        }
+        /// <summary>
+        /// Instantiates a new simulationAutomationRun and sets the default values.
+        /// </summary>
+        public SimulationAutomationRun() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -64,6 +79,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("simulationId", SimulationId);
             writer.WriteDateTimeOffsetValue("startDateTime", StartDateTime);
             writer.WriteEnumValue<SimulationAutomationRunStatus>("status", Status);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,11 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class UnifiedRoleAssignmentScheduleInstance : UnifiedRoleScheduleInstanceBase, IParsable {
+    public class UnifiedRoleAssignmentScheduleInstance : UnifiedRoleScheduleInstanceBase, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>If the request is from an eligible administrator to activate a role, this parameter will show the related eligible assignment for that activation. Otherwise, it is null. Supports $expand.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +20,11 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("activatedUsing", value); }
         }
 #endif
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Type of the assignment which can either be Assigned or Activated. Supports $filter (eq, ne).</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -33,6 +39,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("assignmentType", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The end date of the schedule instance.</summary>
         public DateTimeOffset? EndDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("endDateTime"); }
@@ -86,6 +94,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("startDateTime", value); }
         }
         /// <summary>
+        /// Instantiates a new UnifiedRoleAssignmentScheduleInstance and sets the default values.
+        /// </summary>
+        public UnifiedRoleAssignmentScheduleInstance() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -121,6 +136,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("roleAssignmentOriginId", RoleAssignmentOriginId);
             writer.WriteStringValue("roleAssignmentScheduleId", RoleAssignmentScheduleId);
             writer.WriteDateTimeOffsetValue("startDateTime", StartDateTime);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

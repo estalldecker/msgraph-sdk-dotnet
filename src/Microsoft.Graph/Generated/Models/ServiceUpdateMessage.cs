@@ -1,14 +1,20 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ServiceUpdateMessage : ServiceAnnouncementBase, IParsable {
+    public class ServiceUpdateMessage : ServiceAnnouncementBase, IAdditionalDataHolder, IBackedModel, IParsable {
         /// <summary>The expected deadline of the action for the message.</summary>
         public DateTimeOffset? ActionRequiredByDateTime {
             get { return BackingStore?.Get<DateTimeOffset?>("actionRequiredByDateTime"); }
             set { BackingStore?.Set("actionRequiredByDateTime", value); }
+        }
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
         }
         /// <summary>A collection of serviceAnnouncementAttachments.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
@@ -38,6 +44,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("attachmentsArchive", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The body property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -118,6 +126,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new ServiceUpdateMessage and sets the default values.
         /// </summary>
         public ServiceUpdateMessage() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.serviceUpdateMessage";
         }
         /// <summary>
@@ -164,6 +174,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteEnumValue<ServiceUpdateSeverity>("severity", Severity);
             writer.WriteCollectionOfPrimitiveValues<string>("tags", Tags);
             writer.WriteObjectValue<ServiceUpdateMessageViewpoint>("viewPoint", ViewPoint);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

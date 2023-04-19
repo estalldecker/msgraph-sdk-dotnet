@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AccessPackageTextInputQuestion : AccessPackageQuestion, IParsable {
+    public class AccessPackageTextInputQuestion : AccessPackageQuestion, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether the answer will be in single or multiple line format.</summary>
         public bool? IsSingleLineQuestion {
             get { return BackingStore?.Get<bool?>("isSingleLineQuestion"); }
@@ -28,6 +36,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new AccessPackageTextInputQuestion and sets the default values.
         /// </summary>
         public AccessPackageTextInputQuestion() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.accessPackageTextInputQuestion";
         }
         /// <summary>
@@ -56,6 +66,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteBoolValue("isSingleLineQuestion", IsSingleLineQuestion);
             writer.WriteStringValue("regexPattern", RegexPattern);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

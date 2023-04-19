@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class ManagedIOSLobApp : ManagedMobileLobApp, IParsable {
+    public class ManagedIOSLobApp : ManagedMobileLobApp, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Contains properties of the possible iOS device types the mobile app can run on.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("applicableDeviceType", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The build number of managed iOS Line of Business (LoB) app.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -84,6 +92,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new ManagedIOSLobApp and sets the default values.
         /// </summary>
         public ManagedIOSLobApp() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.managedIOSLobApp";
         }
         /// <summary>
@@ -120,6 +130,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteDateTimeOffsetValue("expirationDateTime", ExpirationDateTime);
             writer.WriteObjectValue<IosMinimumOperatingSystem>("minimumSupportedOperatingSystem", MinimumSupportedOperatingSystem);
             writer.WriteStringValue("versionNumber", VersionNumber);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

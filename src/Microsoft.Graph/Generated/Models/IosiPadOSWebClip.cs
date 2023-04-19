@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class IosiPadOSWebClip : MobileApp, IParsable {
+    public class IosiPadOSWebClip : MobileApp, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Indicates iOS/iPadOS web clip app URL. Example: &apos;https://www.contoso.com&apos;</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -19,6 +25,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("appUrl", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Whether or not to use managed browser. When TRUE, the app will be required to be opened in Microsoft Edge. When FALSE, the app will not be required to be opened in Microsoft Edge. By default, this property is set to FALSE.</summary>
         public bool? UseManagedBrowser {
             get { return BackingStore?.Get<bool?>("useManagedBrowser"); }
@@ -28,6 +36,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new IosiPadOSWebClip and sets the default values.
         /// </summary>
         public IosiPadOSWebClip() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.iosiPadOSWebClip";
         }
         /// <summary>
@@ -56,6 +66,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteStringValue("appUrl", AppUrl);
             writer.WriteBoolValue("useManagedBrowser", UseManagedBrowser);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

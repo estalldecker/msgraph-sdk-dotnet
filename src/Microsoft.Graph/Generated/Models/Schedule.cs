@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Schedule : Entity, IParsable {
+    public class Schedule : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether the schedule is enabled for the team. Required.</summary>
         public bool? Enabled {
             get { return BackingStore?.Get<bool?>("enabled"); }
@@ -29,7 +37,7 @@ namespace Microsoft.Graph.Models {
             get { return BackingStore?.Get<bool?>("offerShiftRequestsEnabled"); }
             set { BackingStore?.Set("offerShiftRequestsEnabled", value); }
         }
-        /// <summary>The openShiftChangeRequests property</summary>
+        /// <summary>The open shift requests in the schedule.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public List<OpenShiftChangeRequest>? OpenShiftChangeRequests {
@@ -43,7 +51,7 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("openShiftChangeRequests", value); }
         }
 #endif
-        /// <summary>The openShifts property</summary>
+        /// <summary>The set of open shifts in a scheduling group in the schedule.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public List<OpenShift>? OpenShifts {
@@ -209,6 +217,13 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
+        /// Instantiates a new schedule and sets the default values.
+        /// </summary>
+        public Schedule() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -266,6 +281,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<TimeOff>("timesOff", TimesOff);
             writer.WriteStringValue("timeZone", TimeZone);
             writer.WriteCollectionOfPrimitiveValues<string>("workforceIntegrationIds", WorkforceIntegrationIds);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

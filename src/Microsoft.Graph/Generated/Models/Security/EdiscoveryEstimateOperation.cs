@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models.Security {
-    public class EdiscoveryEstimateOperation : CaseOperation, IParsable {
+    public class EdiscoveryEstimateOperation : CaseOperation, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The estimated count of items for the search that matched the content query.</summary>
         public long? IndexedItemCount {
             get { return BackingStore?.Get<long?>("indexedItemCount"); }
@@ -50,6 +58,13 @@ namespace Microsoft.Graph.Models.Security {
             set { BackingStore?.Set("unindexedItemsSize", value); }
         }
         /// <summary>
+        /// Instantiates a new ediscoveryEstimateOperation and sets the default values.
+        /// </summary>
+        public EdiscoveryEstimateOperation() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -85,6 +100,7 @@ namespace Microsoft.Graph.Models.Security {
             writer.WriteIntValue("siteCount", SiteCount);
             writer.WriteLongValue("unindexedItemCount", UnindexedItemCount);
             writer.WriteLongValue("unindexedItemsSize", UnindexedItemsSize);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

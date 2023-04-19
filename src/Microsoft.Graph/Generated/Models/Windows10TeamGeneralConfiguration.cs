@@ -1,11 +1,17 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using Microsoft.Kiota.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class Windows10TeamGeneralConfiguration : DeviceConfiguration, IParsable {
+    public class Windows10TeamGeneralConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Indicates whether or not to Block Azure Operational Insights.</summary>
         public bool? AzureOperationalInsightsBlockTelemetry {
             get { return BackingStore?.Get<bool?>("azureOperationalInsightsBlockTelemetry"); }
@@ -39,6 +45,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("azureOperationalInsightsWorkspaceKey", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Specifies whether to automatically launch the Connect app whenever a projection is initiated.</summary>
         public bool? ConnectAppBlockAutoLaunch {
             get { return BackingStore?.Get<bool?>("connectAppBlockAutoLaunch"); }
@@ -137,6 +145,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new Windows10TeamGeneralConfiguration and sets the default values.
         /// </summary>
         public Windows10TeamGeneralConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.windows10TeamGeneralConfiguration";
         }
         /// <summary>
@@ -201,6 +211,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("welcomeScreenBackgroundImageUrl", WelcomeScreenBackgroundImageUrl);
             writer.WriteBoolValue("welcomeScreenBlockAutomaticWakeUp", WelcomeScreenBlockAutomaticWakeUp);
             writer.WriteEnumValue<WelcomeScreenMeetingInformation>("welcomeScreenMeetingInformation", WelcomeScreenMeetingInformation);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

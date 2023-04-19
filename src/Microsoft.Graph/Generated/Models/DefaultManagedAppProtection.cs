@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class DefaultManagedAppProtection : ManagedAppProtection, IParsable {
+    public class DefaultManagedAppProtection : ManagedAppProtection, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Represents the level to which app data is encrypted for managed apps</summary>
         public ManagedAppDataEncryptionType? AppDataEncryptionType {
             get { return BackingStore?.Get<ManagedAppDataEncryptionType?>("appDataEncryptionType"); }
@@ -24,6 +30,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("apps", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>A set of string key and string value pairs to be sent to the affected users, unalterned by this service</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -123,6 +131,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new DefaultManagedAppProtection and sets the default values.
         /// </summary>
         public DefaultManagedAppProtection() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.defaultManagedAppProtection";
         }
         /// <summary>
@@ -171,6 +181,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("minimumRequiredSdkVersion", MinimumRequiredSdkVersion);
             writer.WriteStringValue("minimumWarningPatchVersion", MinimumWarningPatchVersion);
             writer.WriteBoolValue("screenCaptureBlocked", ScreenCaptureBlocked);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

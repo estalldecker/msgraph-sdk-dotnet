@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class MailFolder : Entity, IParsable {
+    public class MailFolder : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The number of immediate child mailFolders in the current mailFolder.</summary>
         public int? ChildFolderCount {
             get { return BackingStore?.Get<int?>("childFolderCount"); }
@@ -124,6 +132,13 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("unreadItemCount", value); }
         }
         /// <summary>
+        /// Instantiates a new mailFolder and sets the default values.
+        /// </summary>
+        public MailFolder() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
@@ -171,6 +186,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteCollectionOfObjectValues<SingleValueLegacyExtendedProperty>("singleValueExtendedProperties", SingleValueExtendedProperties);
             writer.WriteIntValue("totalItemCount", TotalItemCount);
             writer.WriteIntValue("unreadItemCount", UnreadItemCount);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

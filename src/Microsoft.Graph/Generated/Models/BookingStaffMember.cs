@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class BookingStaffMember : BookingStaffMemberBase, IParsable {
+    public class BookingStaffMember : BookingStaffMemberBase, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>True means that if the staff member is a Microsoft 365 user, the Bookings API would verify the staff member&apos;s availability in their personal calendar in Microsoft 365, before making a booking.</summary>
         public bool? AvailabilityIsAffectedByPersonalCalendar {
             get { return BackingStore?.Get<bool?>("availabilityIsAffectedByPersonalCalendar"); }
             set { BackingStore?.Set("availabilityIsAffectedByPersonalCalendar", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The name of the staff member, as displayed to customers. Required.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -85,6 +93,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new BookingStaffMember and sets the default values.
         /// </summary>
         public BookingStaffMember() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.bookingStaffMember";
         }
         /// <summary>
@@ -125,6 +135,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteStringValue("timeZone", TimeZone);
             writer.WriteBoolValue("useBusinessHours", UseBusinessHours);
             writer.WriteCollectionOfObjectValues<BookingWorkHours>("workingHours", WorkingHours);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

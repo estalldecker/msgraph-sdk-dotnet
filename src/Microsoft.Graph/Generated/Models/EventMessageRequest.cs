@@ -1,15 +1,23 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class EventMessageRequest : EventMessage, IParsable {
+    public class EventMessageRequest : EventMessage, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>True if the meeting organizer allows invitees to propose a new time when responding, false otherwise. Optional. Default is true.</summary>
         public bool? AllowNewTimeProposals {
             get { return BackingStore?.Get<bool?>("allowNewTimeProposals"); }
             set { BackingStore?.Set("allowNewTimeProposals", value); }
         }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The meetingRequestType property</summary>
         public Microsoft.Graph.Models.MeetingRequestType? MeetingRequestType {
             get { return BackingStore?.Get<Microsoft.Graph.Models.MeetingRequestType?>("meetingRequestType"); }
@@ -66,6 +74,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new EventMessageRequest and sets the default values.
         /// </summary>
         public EventMessageRequest() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.eventMessageRequest";
         }
         /// <summary>
@@ -102,6 +112,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteObjectValue<Location>("previousLocation", PreviousLocation);
             writer.WriteObjectValue<DateTimeTimeZone>("previousStartDateTime", PreviousStartDateTime);
             writer.WriteBoolValue("responseRequested", ResponseRequested);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

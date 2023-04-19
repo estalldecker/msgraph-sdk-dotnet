@@ -1,10 +1,16 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class AndroidGeneralDeviceConfiguration : DeviceConfiguration, IParsable {
+    public class AndroidGeneralDeviceConfiguration : DeviceConfiguration, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
         /// <summary>Indicates whether or not to block clipboard sharing to copy and paste between applications.</summary>
         public bool? AppsBlockClipboardSharing {
             get { return BackingStore?.Get<bool?>("appsBlockClipboardSharing"); }
@@ -62,6 +68,8 @@ namespace Microsoft.Graph.Models {
             set { BackingStore?.Set("appsLaunchBlockList", value); }
         }
 #endif
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>Indicates whether or not to block Bluetooth.</summary>
         public bool? BluetoothBlocked {
             get { return BackingStore?.Get<bool?>("bluetoothBlocked"); }
@@ -294,6 +302,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new AndroidGeneralDeviceConfiguration and sets the default values.
         /// </summary>
         public AndroidGeneralDeviceConfiguration() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.androidGeneralDeviceConfiguration";
         }
         /// <summary>
@@ -414,6 +424,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteBoolValue("webBrowserBlockPopups", WebBrowserBlockPopups);
             writer.WriteEnumValue<WebBrowserCookieSettings>("webBrowserCookieSettings", WebBrowserCookieSettings);
             writer.WriteBoolValue("wiFiBlocked", WiFiBlocked);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,10 +1,18 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class DriveItemVersion : BaseItemVersion, IParsable {
+    public class DriveItemVersion : BaseItemVersion, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The content stream for this version of the item.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -28,6 +36,8 @@ namespace Microsoft.Graph.Models {
         /// Instantiates a new DriveItemVersion and sets the default values.
         /// </summary>
         public DriveItemVersion() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
             OdataType = "#microsoft.graph.driveItemVersion";
         }
         /// <summary>
@@ -56,6 +66,7 @@ namespace Microsoft.Graph.Models {
             base.Serialize(writer);
             writer.WriteByteArrayValue("content", Content);
             writer.WriteLongValue("size", Size);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }

@@ -1,11 +1,19 @@
 using Microsoft.Kiota.Abstractions.Serialization;
+using Microsoft.Kiota.Abstractions.Store;
 using Microsoft.Kiota.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 namespace Microsoft.Graph.Models {
-    public class PrintUsage : Entity, IParsable {
+    public class PrintUsage : Entity, IAdditionalDataHolder, IBackedModel, IParsable {
+        /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
+        public IDictionary<string, object> AdditionalData {
+            get { return BackingStore?.Get<IDictionary<string, object>>("additionalData"); }
+            set { BackingStore?.Set("additionalData", value); }
+        }
+        /// <summary>Stores model information.</summary>
+        public IBackingStore BackingStore { get; private set; }
         /// <summary>The completedBlackAndWhiteJobCount property</summary>
         public long? CompletedBlackAndWhiteJobCount {
             get { return BackingStore?.Get<long?>("completedBlackAndWhiteJobCount"); }
@@ -25,6 +33,13 @@ namespace Microsoft.Graph.Models {
         public Date? UsageDate {
             get { return BackingStore?.Get<Date?>("usageDate"); }
             set { BackingStore?.Set("usageDate", value); }
+        }
+        /// <summary>
+        /// Instantiates a new printUsage and sets the default values.
+        /// </summary>
+        public PrintUsage() : base() {
+            BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
+            AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
@@ -61,6 +76,7 @@ namespace Microsoft.Graph.Models {
             writer.WriteLongValue("completedColorJobCount", CompletedColorJobCount);
             writer.WriteLongValue("incompleteJobCount", IncompleteJobCount);
             writer.WriteDateValue("usageDate", UsageDate);
+            writer.WriteAdditionalData(AdditionalData);
         }
     }
 }
