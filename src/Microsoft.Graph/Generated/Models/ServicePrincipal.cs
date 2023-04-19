@@ -656,7 +656,7 @@ namespace Microsoft.Graph.Models {
         }
 #endif
         /// <summary>
-        /// Instantiates a new servicePrincipal and sets the default values.
+        /// Instantiates a new ServicePrincipal and sets the default values.
         /// </summary>
         public ServicePrincipal() : base() {
             OdataType = "#microsoft.graph.servicePrincipal";
